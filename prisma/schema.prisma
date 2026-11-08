@@ -1,0 +1,892 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  DEACTIVATED
+}
+
+enum VisitStatus {
+  EXPECTED
+  AWAITING_APPROVAL
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  DENIED
+}
+
+enum NotificationChannel {
+  EMAIL
+  SLACK
+}
+
+enum NotificationStatus {
+  SENT
+  FAILED
+  SKIPPED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  REMOTE
+  LEAVE
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  VOID
+}
+
+enum ExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum ProjectStatus {
+  PLANNED
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum SurveyTaskStatus {
+  TODO
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum FieldReportStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                    String         @id @default(cuid())
+  employeeId            String?        @unique
+  email                 String         @unique
+  slackEmail            String?
+  name                  String
+  passwordHash          String
+  phone                 String?
+  photoUrl              String?        @db.Text
+  jobTitle              String?
+  officeLocation        String?
+  dateEmployed          DateTime?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  status                UserStatus     @default(ACTIVE)
+  failedLoginAttempts   Int            @default(0)
+  lockoutCount          Int            @default(0)
+  lockoutUntil          DateTime?
+  lastLoginAt           DateTime?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  departmentId          String?
+  managerId             String?
+  department            Department?    @relation("DepartmentMembers", fields: [departmentId], references: [id], onDelete: SetNull)
+  manager               User?          @relation("UserManager", fields: [managerId], references: [id], onDelete: SetNull)
+  reports               User[]         @relation("UserManager")
+  roles                 UserRole[]
+  roleChanges           RoleChange[]   @relation("RoleChangeUser")
+  roleChangesMade       RoleChange[]   @relation("RoleChangeActor")
+  headedDepartments     Department[]   @relation("DepartmentHead")
+  hostedVisits          Visit[]        @relation("VisitHost")
+  registeredVisits      Visit[]        @relation("VisitRegistrar")
+  checkedInVisits       Visit[]        @relation("VisitCheckIn")
+  checkedOutVisits      Visit[]        @relation("VisitCheckOut")
+  approvedVisits        Visit[]        @relation("VisitApprover")
+  correctedVisits       Visit[]        @relation("VisitCorrector")
+  cancelledVisits       Visit[]        @relation("VisitCanceller")
+  auditEvents           AuditEvent[]   @relation("AuditActor")
+  attendance            Attendance[]   @relation("AttendanceUser")
+  attendanceRecorded    Attendance[]   @relation("AttendanceRecorder")
+  invoicesCreated       Invoice[]      @relation("InvoiceCreator")
+  paymentsRecorded      Payment[]      @relation("PaymentRecorder")
+  expensesRecorded      Expense[]      @relation("ExpenseRecorder")
+  expensesApproved      Expense[]      @relation("ExpenseApprover")
+  managedProjects       Project[]      @relation("ProjectManager")
+  createdProjects       Project[]      @relation("ProjectCreator")
+  assignedParcels       LandParcel[]   @relation("ParcelAssignee")
+  surveyTasks           SurveyTask[]   @relation("TaskAssignee")
+  createdTasks          SurveyTask[]   @relation("TaskCreator")
+  approvedTasks         SurveyTask[]   @relation("TaskApprover")
+  fieldReports          FieldReport[]  @relation("ReportAuthor")
+  approvedReports       FieldReport[]  @relation("ReportApprover")
+  uploadedAttachments   Attachment[]   @relation("AttachmentUploader")
+  complianceOwned       ComplianceObligation[] @relation("ComplianceOwner")
+  complianceFiled       ComplianceObligation[] @relation("ComplianceFiler")
+  prospectsOwned        Prospect[]     @relation("ProspectOwner")
+  prospectsCreated      Prospect[]     @relation("ProspectCreator")
+  prospectActivities    ProspectActivity[] @relation("ProspectActivityUser")
+  growthCampaigns       OutreachCampaign[] @relation("CampaignCreator")
+  growthApprovals       OutreachCampaign[] @relation("CampaignApprover")
+  clientProfile         ClientProfile?
+  clientDocumentsVerified ClientDocument[] @relation("ClientDocumentVerifier")
+  resalesReviewed       ResaleRequest[] @relation("ResaleReviewer")
+  servicesAssigned      ServiceRequest[] @relation("ServiceAssignee")
+  serviceUpdates        ServiceUpdate[] @relation("ServiceUpdateAuthor")
+}
+
+model Department {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  description String?
+  location    String?
+  active      Boolean       @default(true)
+  headId      String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  head        User?         @relation("DepartmentHead", fields: [headId], references: [id], onDelete: SetNull)
+  users       User[]        @relation("DepartmentMembers")
+  visits      Visit[]
+  meetingRooms MeetingRoom[]
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  name        String
+  description String
+  isSystem    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  users       UserRole[]
+  permissions RolePermission[]
+  changes     RoleChange[]
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  module      String
+  action      String
+  description String
+  roles       RolePermission[]
+}
+
+model UserRole {
+  userId     String
+  roleId     String
+  assignedAt DateTime @default(now())
+  assignedBy String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model RoleChange {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String?
+  roleKey   String
+  action    String
+  note      String?
+  actorId   String?
+  createdAt DateTime @default(now())
+  user      User     @relation("RoleChangeUser", fields: [userId], references: [id], onDelete: Cascade)
+  role      Role?    @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  actor     User?    @relation("RoleChangeActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([actorId, createdAt])
+}
+
+model Visitor {
+  id                       String    @id @default(cuid())
+  visitorId                String    @unique
+  fullName                 String
+  phone                    String
+  email                    String?
+  organization             String?
+  photoUrl                 String?   @db.Text
+  identificationType       String?
+  identificationCiphertext String?
+  consentAt                DateTime?
+  consentVersion           String?
+  notes                    String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  visits                   Visit[]
+
+  @@index([fullName])
+  @@index([phone])
+  @@index([email])
+}
+
+model MeetingRoom {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  location  String?
+  capacity  Int?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  visits    Visit[]
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+}
+
+model Visit {
+  id                      String      @id @default(cuid())
+  visitCode               String      @unique
+  visitorId               String
+  hostId                  String?
+  departmentId            String?
+  meetingRoomId           String?
+  purpose                 String
+  category                String
+  appointmentReference    String?
+  expectedArrival         DateTime?
+  expectedCheckout        DateTime?
+  expectedDurationMinutes Int?
+  checkedInAt             DateTime?
+  checkedOutAt            DateTime?
+  hostNotifiedAt          DateTime?
+  approvalNote            String?
+  approvedById            String?
+  approvedAt              DateTime?
+  cancelledById           String?
+  cancelledAt             DateTime?
+  correctionReason        String?
+  correctedById           String?
+  correctedAt             DateTime?
+  checkInNote             String?
+  accessZones             String?
+  status                  VisitStatus @default(EXPECTED)
+  qrVersion               Int         @default(0)
+  cardReturned            Boolean?
+  cardReturnNote          String?
+  notes                   String?
+  registeredById          String
+  checkedInById           String?
+  checkedOutById          String?
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
+  visitor                 Visitor     @relation(fields: [visitorId], references: [id], onDelete: Restrict)
+  host                    User?       @relation("VisitHost", fields: [hostId], references: [id], onDelete: SetNull)
+  department              Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  meetingRoom             MeetingRoom? @relation(fields: [meetingRoomId], references: [id], onDelete: SetNull)
+  registeredBy            User        @relation("VisitRegistrar", fields: [registeredById], references: [id], onDelete: Restrict)
+  checkedInBy             User?       @relation("VisitCheckIn", fields: [checkedInById], references: [id], onDelete: SetNull)
+  checkedOutBy            User?       @relation("VisitCheckOut", fields: [checkedOutById], references: [id], onDelete: SetNull)
+  approvedBy              User?       @relation("VisitApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  cancelledBy             User?       @relation("VisitCanceller", fields: [cancelledById], references: [id], onDelete: SetNull)
+  correctedBy             User?       @relation("VisitCorrector", fields: [correctedById], references: [id], onDelete: SetNull)
+
+  @@index([status, expectedArrival])
+  @@index([status, expectedCheckout])
+  @@index([visitorId, createdAt])
+  @@index([hostId, expectedArrival])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  actor      User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId, createdAt])
+  @@index([actorId, createdAt])
+}
+
+model Setting {
+  key         String   @id
+  value       Json
+  description String?
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id         String              @id @default(cuid())
+  channel    NotificationChannel
+  status     NotificationStatus
+  recipient  String
+  subject    String
+  template   String
+  entityType String?
+  entityId   String?
+  error      String?
+  actorId    String?
+  createdAt  DateTime            @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+}
+
+model Attendance {
+  id           String           @id @default(cuid())
+  userId       String
+  date         DateTime         @db.Date
+  checkInAt    DateTime?
+  checkOutAt   DateTime?
+  status       AttendanceStatus @default(PRESENT)
+  note         String?
+  recordedById String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  user         User             @relation("AttendanceUser", fields: [userId], references: [id], onDelete: Cascade)
+  recordedBy   User?            @relation("AttendanceRecorder", fields: [recordedById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, date])
+  @@index([date])
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  number        String        @unique
+  customerName  String
+  customerEmail String?
+  description   String
+  amount        Decimal       @db.Decimal(14, 2)
+  currency      String        @default("GHS")
+  status        InvoiceStatus @default(DRAFT)
+  issueDate     DateTime      @default(now())
+  dueDate       DateTime?
+  paidAt        DateTime?
+  createdById   String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  createdBy     User          @relation("InvoiceCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  payments      Payment[]
+
+  @@index([status, issueDate])
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  invoiceId     String?
+  reference     String?
+  payerName     String
+  amount        Decimal  @db.Decimal(14, 2)
+  method        String   @default("CASH")
+  receivedAt    DateTime @default(now())
+  note          String?
+  recordedById  String
+  createdAt     DateTime @default(now())
+  invoice       Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  recordedBy    User     @relation("PaymentRecorder", fields: [recordedById], references: [id], onDelete: Restrict)
+
+  @@index([receivedAt])
+}
+
+model Expense {
+  id            String        @id @default(cuid())
+  category      String
+  vendor        String?
+  description   String
+  amount        Decimal       @db.Decimal(14, 2)
+  incurredAt    DateTime      @default(now())
+  status        ExpenseStatus @default(PENDING)
+  note          String?
+  receiptUrl    String?       @db.Text
+  approvedById  String?
+  approvedAt    DateTime?
+  recordedById  String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  recordedBy    User          @relation("ExpenseRecorder", fields: [recordedById], references: [id], onDelete: Restrict)
+  approvedBy    User?         @relation("ExpenseApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@index([status, incurredAt])
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  code        String        @unique
+  name        String
+  description String?
+  location    String?
+  status      ProjectStatus @default(PLANNED)
+  startDate   DateTime?
+  endDate     DateTime?
+  managerId   String?
+  createdById String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  manager     User?         @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
+  createdBy   User          @relation("ProjectCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  parcels     LandParcel[]
+  tasks       SurveyTask[]
+  reports     FieldReport[]
+
+  @@index([status])
+}
+
+model LandParcel {
+  id            String       @id @default(cuid())
+  projectId     String
+  parcelCode    String
+  size          Decimal?     @db.Decimal(12, 2)
+  unit          String       @default("acres")
+  location      String?
+  latitude      Float?
+  longitude     Float?
+  status        String       @default("ACTIVE")
+  notes         String?
+  assignedToId  String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  project       Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignedTo    User?        @relation("ParcelAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  tasks         SurveyTask[]
+  reports       FieldReport[]
+
+  @@unique([projectId, parcelCode])
+  @@index([assignedToId])
+}
+
+model SurveyTask {
+  id            String           @id @default(cuid())
+  projectId     String
+  parcelId      String?
+  title         String
+  description   String?
+  status        SurveyTaskStatus @default(TODO)
+  priority      String           @default("NORMAL")
+  assignedToId  String?
+  dueDate       DateTime?
+  submittedAt   DateTime?
+  approvedById  String?
+  approvedAt    DateTime?
+  reviewNote    String?
+  createdById   String
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  project       Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parcel        LandParcel?      @relation(fields: [parcelId], references: [id], onDelete: SetNull)
+  assignedTo    User?            @relation("TaskAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdBy     User             @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  approvedBy    User?            @relation("TaskApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  reports       FieldReport[]
+
+  @@index([status, dueDate])
+  @@index([assignedToId])
+}
+
+model FieldReport {
+  id           String            @id @default(cuid())
+  taskId       String
+  projectId    String
+  parcelId     String?
+  authorId     String
+  summary      String
+  findings     String?
+  coordinates  String?
+  measurements String?
+  status       FieldReportStatus @default(DRAFT)
+  submittedAt  DateTime?
+  approvedById String?
+  approvedAt   DateTime?
+  reviewNote   String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  task         SurveyTask        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  project      Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parcel       LandParcel?       @relation(fields: [parcelId], references: [id], onDelete: SetNull)
+  author       User              @relation("ReportAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  approvedBy   User?             @relation("ReportApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@index([status, submittedAt])
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  entityType   String
+  entityId     String
+  fileName     String
+  mimeType     String
+  size         Int
+  data         String   @db.Text
+  uploadedById String
+  createdAt    DateTime @default(now())
+  uploadedBy   User     @relation("AttachmentUploader", fields: [uploadedById], references: [id], onDelete: Restrict)
+
+  @@index([entityType, entityId])
+}
+
+model ComplianceObligation {
+  id          String    @id @default(cuid())
+  catalogKey  String
+  period      String
+  title       String
+  authority   String
+  category    String
+  statute     String?
+  frequency   String
+  dueDate     DateTime?
+  status      String    @default("PENDING")
+  reference   String?
+  notes       String?   @db.Text
+  evidenceUrl String?
+  ownerId     String?
+  filedAt     DateTime?
+  filedById   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  owner       User?     @relation("ComplianceOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  filedBy     User?     @relation("ComplianceFiler", fields: [filedById], references: [id], onDelete: SetNull)
+
+  @@unique([catalogKey, period])
+  @@index([dueDate, status])
+  @@index([category, status])
+}
+
+model Prospect {
+  id                String    @id @default(cuid())
+  company           String
+  contactName       String?
+  jobTitle          String?
+  email             String?   @unique
+  phone             String?
+  website           String?
+  location          String?
+  industry          String?
+  source            String    @default("MANUAL")
+  sourceDetail      String?
+  stage             String    @default("NEW")
+  score             Int       @default(0)
+  scoreBand         String    @default("LOW")
+  scoreReasons      Json?
+  consentStatus     String    @default("UNKNOWN")
+  consentPurpose    String?
+  consentAt         DateTime?
+  consentEvidence   String?   @db.Text
+  lawfulBasis       String?
+  suppressed        Boolean   @default(false)
+  suppressedAt      DateTime?
+  suppressionReason String?
+  researchNotes     String?   @db.Text
+  notes             String?   @db.Text
+  lastContactedAt   DateTime?
+  repliedAt         DateTime?
+  lastReplySummary  String?   @db.Text
+  ownerId           String?
+  createdById       String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  owner             User?     @relation("ProspectOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  createdBy         User?     @relation("ProspectCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  activities        ProspectActivity[]
+  campaignRecipients CampaignRecipient[]
+
+  @@index([stage, score])
+  @@index([consentStatus, suppressed])
+  @@index([ownerId, updatedAt])
+}
+
+model ProspectActivity {
+  id         String   @id @default(cuid())
+  prospectId String
+  userId     String?
+  type       String
+  summary    String
+  detail     String?  @db.Text
+  createdAt  DateTime @default(now())
+  prospect   Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+  user       User?    @relation("ProspectActivityUser", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([prospectId, createdAt])
+}
+
+model OutreachCampaign {
+  id           String   @id @default(cuid())
+  name         String
+  subject      String
+  preview      String?
+  body         String   @db.Text
+  status       String   @default("DRAFT")
+  segmentStage String?
+  minScore     Int      @default(0)
+  approvedById String?
+  approvedAt   DateTime?
+  sentAt       DateTime?
+  createdById  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  approvedBy   User?    @relation("CampaignApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  createdBy    User?    @relation("CampaignCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  recipients   CampaignRecipient[]
+
+  @@index([status, createdAt])
+}
+
+model CampaignRecipient {
+  id         String   @id @default(cuid())
+  campaignId String
+  prospectId String
+  email      String
+  name       String?
+  status     String   @default("QUEUED")
+  error      String?  @db.Text
+  messageId  String?
+  sentAt     DateTime?
+  createdAt  DateTime @default(now())
+  campaign   OutreachCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  prospect   Prospect @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, prospectId])
+  @@index([campaignId, status])
+}
+
+model LandListing {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  region        String
+  district      String
+  community     String?
+  landType      String   @default("RESIDENTIAL")
+  titleStatus   String   @default("REGISTERED")
+  sizeAcres     Float
+  price         Int
+  pricePerAcre Int?
+  currency      String   @default("GHS")
+  summary       String   @db.Text
+  description   String   @db.Text
+  highlights    String[]
+  imageUrls     String[]
+  coordinates   String?
+  sellerName    String?
+  sellerPhone   String?
+  sellerEmail   String?
+  verified      Boolean  @default(false)
+  featured      Boolean  @default(false)
+  status        String   @default("PUBLISHED")
+  views         Int      @default(0)
+  publishedAt   DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  reservations  LandReservation[]
+  inquiries     LandInquiry[]
+  holdings      LandHolding[]
+  resales       ResaleRequest[]
+  watches       LandWatch[]
+
+  @@index([status, featured, publishedAt])
+  @@index([region, landType, price])
+}
+
+model LandReservation {
+  id            String   @id @default(cuid())
+  reference     String   @unique
+  listingId     String
+  buyerName     String
+  email         String
+  phone         String
+  amount        Int
+  currency      String   @default("GHS")
+  paymentMethod String   @default("BANK_TRANSFER")
+  status        String   @default("PENDING")
+  note          String?  @db.Text
+  clientId      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  listing       LandListing @relation(fields: [listingId], references: [id], onDelete: Restrict)
+  client        ClientProfile? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([listingId, status])
+  @@index([email, createdAt])
+  @@index([clientId, status])
+}
+
+model LandInquiry {
+  id        String   @id @default(cuid())
+  listingId String?
+  type      String   @default("BUYING")
+  name      String
+  email     String
+  phone     String?
+  message   String   @db.Text
+  status    String   @default("NEW")
+  createdAt DateTime @default(now())
+  listing   LandListing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([listingId, createdAt])
+}
+
+model ClientProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  clientCode   String   @unique
+  companyName  String?
+  ghanaCard    String?
+  address      String?
+  region       String?
+  city         String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  holdings     LandHolding[]
+  documents    ClientDocument[]
+  resales      ResaleRequest[]
+  services     ServiceRequest[]
+  watches      LandWatch[]
+  reservations LandReservation[]
+
+  @@index([createdAt])
+}
+
+model LandHolding {
+  id               String   @id @default(cuid())
+  clientId         String
+  listingId        String?
+  title            String
+  region           String
+  district         String
+  community        String?
+  sizeAcres        Float
+  acquisitionDate  DateTime?
+  acquisitionPrice Int?
+  currentValue     Int?
+  titleStatus      String   @default("PENDING")
+  titleNumber      String?
+  coordinates      String?
+  status           String   @default("ACTIVE")
+  notes            String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  client           ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  listing          LandListing?  @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  documents        ClientDocument[]
+  resales          ResaleRequest[]
+  services         ServiceRequest[]
+
+  @@index([clientId, status])
+  @@index([listingId])
+}
+
+model ClientDocument {
+  id           String   @id @default(cuid())
+  clientId     String
+  holdingId    String?
+  name         String
+  type         String   @default("OTHER")
+  fileUrl      String   @db.Text
+  issuedAt     DateTime?
+  status       String   @default("PENDING")
+  verifiedById String?
+  verifiedAt   DateTime?
+  createdAt    DateTime @default(now())
+  client       ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  holding      LandHolding?  @relation(fields: [holdingId], references: [id], onDelete: SetNull)
+  verifiedBy   User?         @relation("ClientDocumentVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+
+  @@index([clientId, createdAt])
+  @@index([holdingId])
+  @@index([status])
+}
+
+model ResaleRequest {
+  id           String   @id @default(cuid())
+  reference    String   @unique
+  clientId     String
+  holdingId    String?
+  listingId    String?  @unique
+  title        String
+  askingPrice  Int
+  sizeAcres    Float
+  region       String
+  district     String
+  community    String?
+  description  String   @db.Text
+  status       String   @default("SUBMITTED")
+  reviewNote   String?  @db.Text
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  client       ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  holding      LandHolding?  @relation(fields: [holdingId], references: [id], onDelete: SetNull)
+  listing      LandListing?  @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  reviewedBy   User?         @relation("ResaleReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([clientId, status])
+  @@index([status, createdAt])
+}
+
+model ServiceRequest {
+  id            String   @id @default(cuid())
+  reference     String   @unique
+  clientId      String
+  holdingId     String?
+  type          String   @default("SURVEY")
+  title         String
+  description   String   @db.Text
+  location      String?
+  priority      String   @default("NORMAL")
+  status        String   @default("SUBMITTED")
+  quoteAmount   Int?
+  invoiceNumber String?
+  scheduledFor  DateTime?
+  assignedToId  String?
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  client        ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  holding       LandHolding?  @relation(fields: [holdingId], references: [id], onDelete: SetNull)
+  assignedTo    User?         @relation("ServiceAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  updates       ServiceUpdate[]
+
+  @@index([clientId, status])
+  @@index([status, createdAt])
+  @@index([assignedToId, status])
+}
+
+model ServiceUpdate {
+  id         String   @id @default(cuid())
+  requestId  String
+  authorId   String?
+  authorRole String   @default("OFFICE")
+  message    String   @db.Text
+  createdAt  DateTime @default(now())
+  request    ServiceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  author     User?          @relation("ServiceUpdateAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([requestId, createdAt])
+}
+
+model LandWatch {
+  id        String   @id @default(cuid())
+  clientId  String
+  listingId String
+  createdAt DateTime @default(now())
+  client    ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  listing   LandListing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, listingId])
+  @@index([listingId])
+}

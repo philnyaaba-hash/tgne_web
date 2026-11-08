@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /api/
+Disallow: /office
+Disallow: /dashboard
+Disallow: /offline
+Allow: /

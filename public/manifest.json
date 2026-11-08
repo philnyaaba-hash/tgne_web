@@ -1,0 +1,44 @@
+{
+  "name": "Land Management System",
+  "short_name": "LandLedger",
+  "description": "A local-first land management system for plots, buyers, sales, receipts and payments.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f3f6f3",
+  "theme_color": "#0b1f16",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/brand-logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "finance", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "New Sale",
+      "short_name": "New Sale",
+      "description": "Start a new plot sale",
+      "url": "/dashboard#/sales",
+      "icons": [{ "src": "/assets/brand-logo.jpg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View your business overview",
+      "url": "/dashboard#/dashboard",
+      "icons": [{ "src": "/assets/brand-logo.jpg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Receipts",
+      "short_name": "Receipts",
+      "description": "Browse receipts and invoices",
+      "url": "/dashboard#/receipts",
+      "icons": [{ "src": "/assets/brand-logo.jpg", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false
+}
