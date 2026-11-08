@@ -340,7 +340,7 @@
 .tgne-shop-section {
   padding: 78px 0 84px;
   background-color: #b69a6b;
-  background-image: linear-gradient(rgba(247, 246, 241, .2), rgba(247, 246, 241, .2)), url("/assets/tgne-catalogue-bg.jpg");
+  background-image: linear-gradient(rgba(247, 246, 241, .2), rgba(247, 246, 241, .2)), url("https://res.cloudinary.com/ea91sdts/image/upload/v1794174141/aaas.png");
   background-position: center, center 48%;
   background-size: cover;
   background-repeat: no-repeat;
