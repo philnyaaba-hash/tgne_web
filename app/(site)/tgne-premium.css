@@ -749,3 +749,71 @@
   .tgne-service-card, .ls-button, .tgne-slider-track, .tgne-slider-dots label, .tgne-slider-arrows label, .tgne-offer-track, .tgne-offer-card, .tgne-offer-link svg { transition: none; animation: none; }
   .tgne-offer-marquee { overflow-x: auto; }
 }
+
+.tgne-slider-slide { width: 100%; height: 100%; flex: none; }
+.tgne-slider-controls { display: block; }
+.tgne-slider-progress { height: 2px; overflow: hidden; background: rgba(255,255,255,.35); }
+.tgne-slider-progress > span { display: block; width: 100%; height: 100%; transform-origin: left center; background: #d6b77f; transition: transform .35s ease; }
+.tgne-slider-controls-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 13px; }
+.tgne-slider-play { padding: 8px 0; border: 0; color: rgba(255,255,255,.8); background: transparent; font: inherit; font-size: 10px; font-weight: 700; cursor: pointer; }
+.tgne-slider-play:hover { color: #d6b77f; }
+.tgne-slider-arrows { gap: 7px; }
+.tgne-slider-arrows button {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.4);
+  border-radius: 50%;
+  color: #fffdf7;
+  background: rgba(7,29,30,.24);
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease;
+}
+.tgne-slider-arrows button:hover { border-color: #d6b77f; background: rgba(7,29,30,.72); }
+.tgne-slider-arrows button:focus-visible, .tgne-slider-play:focus-visible { outline: 2px solid #fffdf7; outline-offset: 3px; }
+.tgne-slider-topline .tgne-slider-count { display: inline-flex; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tgne-slider-progress > span { transition: none; }
+}
+
+.ls-whatsapp-float {
+  position: fixed;
+  z-index: 80;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border: 1px solid rgba(255,255,255,.85);
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(145deg, #24c66a, #087c49 72%);
+  box-shadow: 0 0 0 4px rgba(188,150,92,.2), 0 12px 32px rgba(8,50,33,.34), inset 0 1px 1px rgba(255,255,255,.38);
+  text-decoration: none;
+  isolation: isolate;
+  transition: background .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.ls-whatsapp-float::before,
+.ls-whatsapp-float::after { position: absolute; z-index: -1; inset: -5px; border: 1px solid rgba(188,150,92,.72); border-radius: 50%; content: ""; pointer-events: none; }
+.ls-whatsapp-float::after { animation: ls-whatsapp-pulse 3s ease-out infinite; }
+.ls-whatsapp-float:hover { transform: translateY(-3px) scale(1.035); background: linear-gradient(145deg, #2bd975, #087c49 72%); box-shadow: 0 0 0 5px rgba(188,150,92,.26), 0 16px 36px rgba(8,50,33,.4), inset 0 1px 1px rgba(255,255,255,.4); }
+.ls-whatsapp-float:focus-visible { outline: 3px solid #bc965c; outline-offset: 6px; }
+.ls-whatsapp-float svg { position: relative; z-index: 1; width: 31px; height: 31px; fill: currentColor; }
+.ls-whatsapp-float span { position: absolute; right: calc(100% + 14px); padding: 10px 14px; border: 1px solid rgba(188,150,92,.55); border-radius: 6px; color: #fdfcf8; background: #102b29; box-shadow: 0 8px 24px rgba(8,28,27,.2); font-size: 11px; font-weight: 680; white-space: nowrap; opacity: 0; pointer-events: none; transform: translateX(5px); transition: opacity .18s ease, transform .18s ease; }
+.ls-whatsapp-float:hover span, .ls-whatsapp-float:focus-visible span { opacity: 1; transform: translateX(0); }
+.land-site .ls-whatsapp-float { color: #fff; }
+@keyframes ls-whatsapp-pulse {
+  0% { opacity: .7; transform: scale(1); }
+  75%, 100% { opacity: 0; transform: scale(1.28); }
+}
+@media (max-width: 600px) {
+  .ls-whatsapp-float { right: max(19px, env(safe-area-inset-right)); bottom: max(19px, env(safe-area-inset-bottom)); width: 58px; height: 58px; }
+  .ls-whatsapp-float svg { width: 28px; height: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ls-whatsapp-float, .ls-whatsapp-float span { transition: none; }
+  .ls-whatsapp-float::after { animation: none; }
+}

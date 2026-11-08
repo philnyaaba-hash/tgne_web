@@ -4,6 +4,7 @@ import HeroSlider from '../../components/tgne/hero-slider';
 import { LAND_SITE } from '../../lib/land-site';
 import { TGNE_SHOP_ITEMS } from '../../lib/tgne-shop';
 import { TGNE_SERVICES } from '../../lib/tgne-services';
+import { TGNE_GALLERY_ITEMS } from '../../lib/tgne-gallery';
 
 export const metadata = {
   title: 'TGNE Solutions | Technology, design & ICT in Tema, Ghana',
@@ -79,7 +80,7 @@ export default function TgnesolutionsHomePage() {
             </div>
           </div>
 
-          <HeroSlider />
+          <HeroSlider slides={TGNE_GALLERY_ITEMS} />
         </div>
       </section>
 
