@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createSession, recordAudit, requireSameOrigin, setSessionCookie } from '../../../../lib/office-auth';
+import { createSession, demoSessionUserId, isLocalDemoMode, recordAudit, requireSameOrigin, setSessionCookie } from '../../../../lib/office-auth';
 import { prisma } from '../../../../lib/prisma';
 import { checkRateLimit, clientIp } from '../../../../lib/rate-limit.mjs';
 import { demoAccountFor, isDemoQuickLoginEnabled } from '../../../../lib/demo-accounts';
@@ -10,7 +10,10 @@ const WINDOW_MS = 5 * 60 * 1000;
 const ATTEMPT_LIMIT = 30;
 
 export async function POST(request) {
-  if (!isDemoQuickLoginEnabled()) {
+  // Development without a database signs the demo roles in locally instead of
+  // querying seeded users. Production always requires a real account.
+  const localDemo = isLocalDemoMode();
+  if (!isDemoQuickLoginEnabled() && !localDemo) {
     return NextResponse.json(
       { error: 'Demo quick sign-in is disabled on this deployment.' },
       { status: 404, headers: { 'cache-control': 'no-store' } }
@@ -41,6 +44,20 @@ export async function POST(request) {
   const demo = demoAccountFor(typeof input?.role === 'string' ? input.role : '');
   if (!demo) {
     return NextResponse.json({ error: 'Unknown demo role.' }, { status: 400 });
+  }
+
+  if (localDemo) {
+    const token = await createSession(demoSessionUserId(demo.role), { demo: true });
+    const response = NextResponse.json(
+      {
+        ok: true,
+        demo: true,
+        user: { id: demoSessionUserId(demo.role), name: demo.name, email: demo.email },
+        role: demo.role
+      },
+      { headers: { 'cache-control': 'no-store' } }
+    );
+    return setSessionCookie(response, token);
   }
 
   const user = await prisma.user.findUnique({

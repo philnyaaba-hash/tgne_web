@@ -1,4 +1,8 @@
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 /** @type {import('next').NextConfig} */
+const projectRoot = dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === 'production';
 const secureTransport = isProduction && /^https:\/\//i.test(process.env.APP_URL || '');
 
@@ -39,6 +43,9 @@ if (secureTransport) {
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // A stray package-lock.json in the home directory makes Next infer the wrong
+  // workspace root, which slows compilation and file tracing. Pin it here.
+  outputFileTracingRoot: projectRoot,
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'res.cloudinary.com' }]
   },

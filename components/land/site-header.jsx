@@ -11,7 +11,7 @@ const LINKS = [
   { href: '/shop', label: 'Products' },
   { href: '/gallery', label: 'Gallery' },
   { href: '/contact', label: 'Contact Us' },
-  { href: '/dashboard#/client-home', label: 'Client area' }
+  { href: '/client', label: 'Client area' }
 ];
 
 export default function SiteHeader() {
@@ -20,7 +20,7 @@ export default function SiteHeader() {
       <div className="ls-container ls-header-inner">
         <Link href="/" className="ls-brand" aria-label="TGNE Solutions home">
           <span className="ls-brand-mark tgne-brand-mark">
-            <Image src="/assets/tgne-logo.png" alt="TGNE Solutions" width={58} height={58} priority />
+            <Image src="/assets/tgne-logo.png" alt="TGNE Solutions" width={58} height={58} loading="eager" unoptimized />
           </span>
           <span className="ls-brand-copy">
             <strong>TGNE Solutions</strong>

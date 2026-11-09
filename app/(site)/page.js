@@ -25,7 +25,7 @@ function OfferCard({ item, index, decorative = false }) {
   const content = (
     <>
       <span className={`tgne-offer-visual${item.image ? ' tgne-offer-visual-has-image' : ''}`}>
-        {item.image ? <Image src={item.image} alt="" fill sizes="(max-width: 860px) 290px, 360px" /> : null}
+        {item.image ? <Image src={item.image} alt="" fill sizes="(max-width: 860px) 290px, 360px" unoptimized={/^https?:\/\//.test(item.image)} /> : null}
         <span className="tgne-offer-number">{String(index + 1).padStart(2, '0')}</span>
         <span className="tgne-offer-icon"><Icon name={item.icon} size={24} /></span>
         {!item.image ? <span className="tgne-offer-visual-word">{item.visual === 'computer' ? 'TECH' : item.visual === 'hosting' ? 'WEB' : item.visual === 'education' ? 'LEARN' : 'TGNE'}</span> : null}

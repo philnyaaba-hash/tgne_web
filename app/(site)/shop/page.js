@@ -134,7 +134,7 @@ export default async function ShopPage({ searchParams }) {
                     <div className={`tgne-product-visual tgne-product-visual-${item.visual}${item.image ? ' tgne-product-visual-has-image' : ''}`} aria-hidden="true">
                       <span className="tgne-product-visual-index">{String(index + 1).padStart(2, '0')}</span>
                       {item.image ? (
-                        <Image src={item.image} alt="" fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 33vw" />
+                        <Image src={item.image} alt="" fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 33vw" unoptimized={/^https?:\/\//.test(item.image)} />
                       ) : (
                         <div className="tgne-product-art">
                           <span>{item.label}</span>

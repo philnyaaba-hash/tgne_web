@@ -19,10 +19,10 @@ export default function NotFound() {
           <span className="ls-empty-icon"><Icon name="mapPin" size={24} /></span>
           <p className="ls-eyebrow">404</p>
           <h1>This page is not on the site.</h1>
-          <p>The link may be old or mistyped. Browse the current land list or tell us what you are looking for.</p>
+          <p>The link may be old or mistyped. Explore TGNE Solutions services or contact the team for help.</p>
           <div className="ls-standalone-actions">
-            <Link href="/listings" className="ls-button ls-button-primary">Browse land</Link>
-            <Link href="/contact" className="ls-button ls-button-secondary">Contact the office</Link>
+            <Link href="/services" className="ls-button ls-button-primary">Explore services</Link>
+            <Link href="/contact" className="ls-button ls-button-secondary">Contact TGNE</Link>
           </div>
         </section>
       </main>
