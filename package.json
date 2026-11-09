@@ -30,7 +30,7 @@
     "resend": "^6.37.0"
   },
   "devDependencies": {
-    "prisma": "^6.19.3"
+    "prisma": "^7.10.1"
   },
   "allowScripts": {
     "@prisma/client@6.19.3": true,
