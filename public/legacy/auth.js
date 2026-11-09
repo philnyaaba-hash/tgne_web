@@ -1,4 +1,4 @@
-/* LandLedger — workspace authentication and role-based access */
+/* TGNE Solutions — workspace authentication and role-based access */
 'use strict';
 
 const Auth = (function () {
@@ -16,7 +16,7 @@ const Auth = (function () {
     { role: 'SURVEYOR', label: 'Surveyor', hint: 'Field work' },
     { role: 'RECEPTIONIST', label: 'Receptionist', hint: 'Front desk' },
     { role: 'VISITOR', label: 'Visitor', hint: 'External' },
-    { role: 'CLIENT', label: 'Land client', hint: 'Buyer portal' }
+    { role: 'CLIENT', label: 'Client', hint: 'TGNE services' }
   ];
 
   function initials(name) {
@@ -180,9 +180,9 @@ const Auth = (function () {
 
   function signInCardHTML() {
     return '<div class="login-card-head">' +
-        '<p class="auth-kicker">Workspace sign in</p>' +
-        '<h2 id="loginCardTitle">Welcome back</h2>' +
-        '<p class="login-sub">Use the account your administrator created. Your role decides which tools open.</p>' +
+        '<p class="auth-kicker">TGNE client portal</p>' +
+        '<h2 id="loginCardTitle">Welcome to your workspace</h2>' +
+        '<p class="login-sub">Sign in to manage your requests, review project progress and stay connected with the TGNE team.</p>' +
       '</div>' +
       '<form class="auth-form" id="loginForm" novalidate>' +
         '<div class="auth-field">' +
@@ -211,8 +211,8 @@ const Auth = (function () {
       '</form>' +
       quickLoginHTML() +
       '<div class="auth-divider"><span>Need access?</span></div>' +
-      '<p class="auth-help">Accounts are created by the office. <a href="/contact">Contact the office</a> to request one.</p>' +
-      '<p class="auth-security">' + icon('shield', 14) + '<span>Role-based access · secure session</span></p>';
+      '<p class="auth-help">Need client access? <a href="/contact">Contact the TGNE team</a> to get started.</p>' +
+      '<p class="auth-security">' + icon('shield', 14) + '<span>TGNE Solutions · Secure client access</span></p>';
   }
 
   function resetCardHTML() {
@@ -220,35 +220,35 @@ const Auth = (function () {
       '<div class="login-card-head">' +
         '<p class="auth-kicker">Account help</p>' +
         '<h2>Reset your password</h2>' +
-        '<p class="login-sub">Passwords are reset by your workspace administrator so land records stay protected.</p>' +
+        '<p class="login-sub">For a password reset, contact the TGNE team. We will verify your account before restoring access.</p>' +
       '</div>' +
       '<ol class="auth-steps">' +
-        '<li><span class="step-no">1</span><div><strong>Contact the office</strong><small>Use the contact page, call your account manager, or visit the office in person.</small></div></li>' +
-        '<li><span class="step-no">2</span><div><strong>Confirm your identity</strong><small>The office verifies your details before issuing a new password.</small></div></li>' +
+        '<li><span class="step-no">1</span><div><strong>Contact TGNE</strong><small>Use the contact page, call your account manager, or visit the office in person.</small></div></li>' +
+        '<li><span class="step-no">2</span><div><strong>Confirm your identity</strong><small>The TGNE team verifies your details before restoring access.</small></div></li>' +
         '<li><span class="step-no">3</span><div><strong>Sign in again</strong><small>Use the new password on this page. Your access follows the same role.</small></div></li>' +
       '</ol>' +
-      '<a class="auth-submit auth-submit-link" href="/contact"><span>Contact the office</span>' + icon('arrowRight', 16) + '</a>' +
+      '<a class="auth-submit auth-submit-link" href="/contact"><span>Contact TGNE</span>' + icon('arrowRight', 16) + '</a>' +
       '<p class="auth-security">' + icon('key', 14) + '<span>Never share your password by email or WhatsApp</span></p>';
   }
 
   function loginScreenHTML() {
     return '<main class="login-screen" id="loginScreen">' +
-      '<section class="login-brand" aria-label="LandLedger workspace">' +
+      '<section class="login-brand" aria-label="TGNE Solutions client workspace">' +
         '<div class="login-brand-top">' +
-          '<img class="login-logo" src="assets/brand-logo.jpg" alt="Land Pro Premium Properties logo">' +
-          '<span class="login-wordmark"><strong>LandLedger</strong><small>Land operations · Ghana</small></span>' +
+          '<img class="login-logo" src="/assets/tgne-logo.png" alt="TGNE Solutions logo">' +
+          '<span class="login-wordmark"><strong>TGNE Solutions</strong><small>Technology · Design · Education</small></span>' +
         '</div>' +
         '<div class="login-hero">' +
-          '<span class="login-eyebrow">Workspace access</span>' +
-          '<h1>Every plot, every cedi, in one clear record.</h1>' +
-          '<p>Sign in to open the land register, buyer records, payments and the tools your role allows.</p>' +
+          '<span class="login-eyebrow">Your client workspace</span>' +
+          '<h1>Your work, clearly in view.</h1>' +
+          '<p>Track service requests, project updates, documents and payments in one secure place.</p>' +
         '</div>' +
         '<div class="login-points">' +
-          '<div class="login-point"><span>' + icon('plots', 17) + '</span><div><strong>Live plot register</strong><small>Available, reserved and sold plots at a glance.</small></div></div>' +
-          '<div class="login-point"><span>' + icon('receipts', 17) + '</span><div><strong>Receipts that write themselves</strong><small>Issue and share a receipt on every payment.</small></div></div>' +
-          '<div class="login-point"><span>' + icon('shield', 17) + '</span><div><strong>Access follows the role</strong><small>Each person sees only the records and tools they need.</small></div></div>' +
+          '<div class="login-point"><span>' + icon('refresh', 17) + '</span><div><strong>Requests from start to finish</strong><small>Follow your work from submission through delivery.</small></div></div>' +
+          '<div class="login-point"><span>' + icon('file', 17) + '</span><div><strong>Updates and documents together</strong><small>Keep project information close at hand.</small></div></div>' +
+          '<div class="login-point"><span>' + icon('shield', 17) + '</span><div><strong>A team working with you</strong><small>Stay in touch with TGNE at every stage.</small></div></div>' +
         '</div>' +
-        '<div class="login-brand-foot"><span class="dot-online"></span> Secure workspace · Access follows your role</div>' +
+        '<div class="login-brand-foot"><span class="dot-online"></span> TGNE Solutions · Secure client workspace</div>' +
       '</section>' +
       '<section class="login-panel" aria-labelledby="loginCardTitle">' +
         '<div class="login-card" id="loginCard">' + signInCardHTML() + '</div>' +
@@ -260,7 +260,7 @@ const Auth = (function () {
     const card = document.getElementById('loginCard');
     if (!card) return;
     card.innerHTML = resetCardHTML();
-    document.title = 'Reset access — LandLedger';
+    document.title = 'Reset access — TGNE Solutions';
     const back = card.querySelector('#loginBack');
     if (back) back.addEventListener('click', showLogin);
     const heading = card.querySelector('h2');
@@ -396,7 +396,7 @@ const Auth = (function () {
     const root = document.getElementById('loginRoot');
     if (!root) return;
     root.innerHTML = loginScreenHTML();
-    document.title = 'Sign in — LandLedger';
+    document.title = 'Sign in — TGNE Solutions';
     bindSignIn(root);
 
     const demo = root.querySelector('#loginDemo');
@@ -421,7 +421,7 @@ const Auth = (function () {
     const root = document.getElementById('loginRoot');
     if (!root) return;
     root.innerHTML = '<main class="login-screen login-checking"><div class="login-checking-card" role="status"><span class="login-spinner"></span><p>Restoring your session…</p></div></main>';
-    document.title = 'Signing in — LandLedger';
+    document.title = 'Signing in — TGNE Solutions';
   }
 
   function hideLogin() {
