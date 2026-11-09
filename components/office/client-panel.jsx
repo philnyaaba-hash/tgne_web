@@ -81,7 +81,7 @@ const EMPTY_RESALE = {
 };
 
 const EMPTY_SERVICE = {
-  type: 'SURVEY',
+  type: 'WEB_DEVELOPMENT',
   title: '',
   holdingId: '',
   location: '',
@@ -287,7 +287,7 @@ export default function ClientPanel({ initialTab = 'overview', user, notify, fai
         title={tab === 'overview' ? 'Welcome, ' + firstName : (TABS.find((item) => item.key === tab) || {}).label}
         description={
           tab === 'overview'
-            ? 'Your land, reservations, resale requests and service jobs — all in one place.'
+            ? 'Manage your TGNE service requests, track delivery, review documents and stay up to date on payments.'
             : undefined
         }
         actions={

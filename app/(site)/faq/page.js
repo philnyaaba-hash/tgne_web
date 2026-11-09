@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import Icon from '../../../components/land/icons';
+import { createPageMetadata } from '../../../lib/site-metadata';
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'TGNE Solutions FAQs',
-  description: 'Common questions about our design, ICT support, website development and training services.'
-};
+  description: 'Answers to common questions about TGNE Solutions web development, design, ICT support, print, hosting and training services.',
+  path: '/faq'
+});
 
 const QUESTIONS = [
   {

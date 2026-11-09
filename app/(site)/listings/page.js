@@ -12,13 +12,15 @@ import {
   TITLE_STATUSES
 } from '../../../lib/land-commerce';
 import { listPublishedListings } from '../../../lib/land-store';
+import { createPageMetadata } from '../../../lib/site-metadata';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'Land for sale in Ghana',
-  description: 'Search verified residential, commercial and agricultural land for sale across Ghana by region, title status, size and price.'
-};
+  description: 'Search residential, commercial and agricultural land listings managed by TGNE Solutions across Ghana by region, title status, size and price.',
+  path: '/listings'
+});
 
 function hrefFor(filters, overrides = {}) {
   const next = { ...filters, ...overrides };

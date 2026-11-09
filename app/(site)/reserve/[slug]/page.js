@@ -6,13 +6,21 @@ import ReservationForm from '../../../../components/land/reservation-form';
 import { formatAcres, formatGhs, labelFor, TITLE_STATUSES } from '../../../../lib/land-commerce';
 import { getPublishedListing } from '../../../../lib/land-store';
 import { LAND_SITE } from '../../../../lib/land-site';
+import { createPageMetadata } from '../../../../lib/site-metadata';
 
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const listing = await getPublishedListing(slug);
-  return { title: listing ? 'Reserve ' + listing.title : 'Reserve land' };
+  return createPageMetadata({
+    title: listing ? `Reserve ${listing.title}` : 'Reservation request',
+    description: listing
+      ? `Submit a reservation request for ${listing.title} in ${listing.region}. The TGNE team will review your details and follow up with payment instructions.`
+      : 'Submit a land reservation request to the TGNE Solutions team.',
+    path: `/reserve/${encodeURIComponent(slug)}`,
+    robots: { index: false, follow: false }
+  });
 }
 
 export default async function ReservePage({ params }) {

@@ -504,7 +504,14 @@
 .tgne-shop-contact p:not(.ls-eyebrow) { color: rgba(248,246,238,.7); font-size: 12px; }
 .tgne-shop-contact .ls-button { flex: none; }
 
-.tgne-principles { padding: 93px 0; color: #f8f6ee; background: radial-gradient(ellipse at 88% 0%, rgba(47, 126, 117, .32), transparent 35%), var(--ls-deep); }
+.tgne-principles {
+  padding: 93px 0;
+  color: #f8f6ee;
+  background:
+    linear-gradient(90deg, rgba(11,37,39,.97) 0%, rgba(11,37,39,.91) 46%, rgba(11,37,39,.75) 100%),
+    url("https://res.cloudinary.com/ea91sdts/image/upload/v1794221734/tgtg.webp") center 48% / cover no-repeat,
+    var(--ls-deep);
+}
 .tgne-principles-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 90px; align-items: center; }
 .tgne-principles .ls-eyebrow { color: #d4bc93; }
 .tgne-principles h2 { color: #f8f6ee; font-size: clamp(2.4rem, 4.5vw, 4.2rem); }

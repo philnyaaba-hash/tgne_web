@@ -2,11 +2,13 @@ import Link from 'next/link';
 import Icon from '../../../components/land/icons';
 import ServiceRequestGrid from '../../../components/land/service-request-grid';
 import { TGNE_SERVICES } from '../../../lib/tgne-services';
+import { createPageMetadata } from '../../../lib/site-metadata';
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'Services',
-  description: 'Explore TGNE Solutions services: web and app development, branding, ICT hardware support, print, hosting and ICT education consultancy.'
-};
+  description: 'Explore TGNE Solutions services: web and app development, branding, ICT hardware support, print, hosting and ICT education consultancy.',
+  path: '/services'
+});
 
 export default function ServicesPage() {
   return (

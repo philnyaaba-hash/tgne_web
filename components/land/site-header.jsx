@@ -10,7 +10,8 @@ const LINKS = [
   { href: '/services', label: 'Our Services' },
   { href: '/shop', label: 'Products' },
   { href: '/gallery', label: 'Gallery' },
-  { href: '/contact', label: 'Contact Us' }
+  { href: '/contact', label: 'Contact Us' },
+  { href: '/dashboard#/client-home', label: 'Client area' }
 ];
 
 export default function SiteHeader() {

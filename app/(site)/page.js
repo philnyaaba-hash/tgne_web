@@ -6,11 +6,13 @@ import { LAND_SITE } from '../../lib/land-site';
 import { TGNE_SHOP_ITEMS } from '../../lib/tgne-shop';
 import { TGNE_SERVICES } from '../../lib/tgne-services';
 import { TGNE_GALLERY_ITEMS } from '../../lib/tgne-gallery';
+import { createPageMetadata } from '../../lib/site-metadata';
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'TGNE Solutions | Technology, design & ICT in Tema, Ghana',
-  description: 'Web development, graphic design, printing, ICT solutions, hosting and digital education consultancy from TGNE Solutions in Tema, Ghana.'
-};
+  description: 'Web development, graphic design, printing, ICT solutions, hosting and digital education consultancy from TGNE Solutions in Tema, Ghana.',
+  path: '/'
+});
 
 const APPROACH = [
   { number: '01', title: 'Understand', copy: 'We begin with your goals, audience and the challenge you need to solve.' },

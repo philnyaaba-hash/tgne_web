@@ -17,7 +17,11 @@ export const metadata = {
   },
   description: LAND_SITE.description,
   applicationName: 'TGNE Solutions',
-  icons: { icon: '/assets/tgne-logo.png', apple: '/assets/tgne-logo.png' },
+  icons: {
+    icon: [{ url: '/assets/tgne-logo.png', sizes: '225x225', type: 'image/png' }],
+    shortcut: '/assets/tgne-logo.png',
+    apple: [{ url: '/assets/tgne-logo.png', sizes: '225x225', type: 'image/png' }]
+  },
   openGraph: {
     title: shareTitle,
     description: LAND_SITE.description,
@@ -30,7 +34,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: shareTitle,
     description: LAND_SITE.description,
-    images: [tgneShareImage]
+    images: [{ url: tgneShareImage.url, alt: tgneShareImage.alt }]
   },
   robots: { index: true, follow: true }
 };

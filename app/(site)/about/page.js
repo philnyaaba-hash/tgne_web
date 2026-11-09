@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import Icon from '../../../components/land/icons';
 import { LAND_SITE } from '../../../lib/land-site';
+import { createPageMetadata } from '../../../lib/site-metadata';
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'About Us',
-  description: 'Meet TGNE Solutions, a Tema-based service company delivering ICT, graphic design and print, and education consultancy.'
-};
+  description: 'Meet TGNE Solutions, a Tema-based service company delivering ICT, graphic design and print, and education consultancy.',
+  path: '/about'
+});
 
 const PRINCIPLES = [
   {

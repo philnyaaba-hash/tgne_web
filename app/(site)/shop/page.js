@@ -3,11 +3,50 @@ import Image from 'next/image';
 import Icon from '../../../components/land/icons';
 import { LAND_SITE } from '../../../lib/land-site';
 import { TGNE_AFFILIATE, TGNE_SHOP_CATEGORIES, TGNE_SHOP_ITEMS } from '../../../lib/tgne-shop';
+import { createPageMetadata } from '../../../lib/site-metadata';
 
-export const metadata = {
-  title: 'Shop',
-  description: 'Explore TGNE Solutions technology, computers, branding and print, web hosting, domains, and ICT education services.'
+const SHOP_METADATA = {
+  all: {
+    title: 'Products and services',
+    description: 'Explore TGNE Solutions technology, software and AI, branding and print, web hosting, and ICT education services.'
+  },
+  technology: {
+    title: 'Technology and AI solutions',
+    description: 'Explore TGNE Solutions software and AI services, computers, ICT support, and practical technology for Ghanaian businesses.'
+  },
+  'design-print': {
+    title: 'Graphic design and print',
+    description: 'Browse TGNE Solutions brand identity, brochures, printed products, signage, and creative services.'
+  },
+  'web-services': {
+    title: 'Domains and web hosting',
+    description: 'Find domain registration and hosting support from TGNE Solutions in Tema, Ghana.'
+  },
+  education: {
+    title: 'ICT education consultancy',
+    description: 'Explore practical ICT training, education consultancy, and digital learning support from TGNE Solutions.'
+  }
 };
+
+export async function generateMetadata({ searchParams }) {
+  const params = await searchParams;
+  const requestedCategory = typeof params?.category === 'string' ? params.category : 'all';
+  const category = TGNE_SHOP_CATEGORIES.find((item) => item.id === requestedCategory) || TGNE_SHOP_CATEGORIES[0];
+  const details = SHOP_METADATA[category.id];
+  const query = typeof params?.q === 'string' ? params.q.trim().slice(0, 100) : '';
+  const canonicalPath = category.id === 'all' ? '/shop' : `/shop?category=${encodeURIComponent(category.id)}`;
+
+  if (query) {
+    return createPageMetadata({
+      title: `Search results for ${query}`,
+      description: `Search TGNE Solutions offerings for ${query}, including technology, design, print, hosting and education services.`,
+      path: canonicalPath,
+      robots: { index: false, follow: true }
+    });
+  }
+
+  return createPageMetadata({ ...details, path: canonicalPath });
+}
 
 export default async function ShopPage({ searchParams }) {
   const params = await searchParams;

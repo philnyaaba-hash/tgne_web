@@ -84,10 +84,12 @@ test('resale validation requires a price, size and description', async () => {
 });
 
 test('service validation accepts known work types only', async () => {
-  const { validateService } = await load();
+  const { SERVICE_TYPES, validateService } = await load();
   const ok = validateService({ type: 'CONSTRUCTION', title: 'Build a two-bedroom home', description: 'Foundation, walls and roof on the Aburi plot.' });
   assert.equal(ok.ok, true);
   assert.equal(ok.value.priority, 'NORMAL');
+  assert.equal(validateService({ type: 'WEB_DEVELOPMENT', title: 'Company website refresh', description: 'Redesign our company site and improve the mobile experience.' }).ok, true);
+  assert.equal(SERVICE_TYPES.find((type) => type.value === 'GRAPHIC_DESIGN').label, 'Graphic design & branding');
   const bad = validateService({ type: 'ROCKET', title: 'x', description: 'y', priority: 'NOW' });
   assert.equal(bad.ok, false);
   assert.ok(bad.errors.type);

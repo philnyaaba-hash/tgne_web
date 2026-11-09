@@ -15,27 +15,32 @@ import {
 } from '../../../../lib/land-commerce';
 import { getPublishedListing, getRelatedListings } from '../../../../lib/land-store';
 import { LAND_SITE } from '../../../../lib/land-site';
-import { tgneShareImage } from '../../../../lib/site-metadata';
+import { createPageMetadata, tgneShareImage } from '../../../../lib/site-metadata';
 
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const listing = await getPublishedListing(slug);
-  if (!listing) return { title: 'Listing not found' };
-  return {
-    title: listing.title + ' — ' + listing.region,
+  const path = `/listings/${encodeURIComponent(slug)}`;
+  if (!listing) {
+    return createPageMetadata({
+      title: 'Listing unavailable',
+      description: 'This TGNE Solutions land listing is no longer available.',
+      path,
+      robots: { index: false, follow: false }
+    });
+  }
+  const images = listing.imageUrls?.length
+    ? [{ url: listing.imageUrls[0], alt: listing.title }, tgneShareImage]
+    : tgneShareImage;
+
+  return createPageMetadata({
+    title: `${listing.title} — ${listing.region}`,
     description: listing.summary,
-    openGraph: {
-      title: listing.title,
-      description: listing.summary,
-      type: 'website',
-      images: [
-        tgneShareImage,
-        ...(listing.imageUrls?.length ? [{ url: listing.imageUrls[0] }] : [])
-      ]
-    }
-  };
+    path,
+    image: images
+  });
 }
 
 export default async function ListingPage({ params }) {

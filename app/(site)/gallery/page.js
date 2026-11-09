@@ -1,11 +1,13 @@
 import GalleryBrowser from './gallery-browser';
 import './gallery.css';
 import { TGNE_GALLERY_ITEMS } from '../../../lib/tgne-gallery';
+import { createPageMetadata } from '../../../lib/site-metadata';
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'Creative Gallery',
-  description: 'Explore TGNE Solutions work across branding, print, technology and education.'
-};
+  description: 'Explore selected TGNE Solutions work across branding, print, technology, software and education in Ghana.',
+  path: '/gallery'
+});
 
 export default function GalleryPage() {
   return (

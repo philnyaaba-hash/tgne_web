@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { LAND_SITE } from '../../../lib/land-site';
+import { createPageMetadata } from '../../../lib/site-metadata';
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'Terms and privacy',
-  description: 'Website terms and privacy information for TGNE Solutions.'
-};
+  description: 'Read TGNE Solutions website terms, enquiry handling and privacy information.',
+  path: '/legal'
+});
 
 export default function LegalPage() {
   return (

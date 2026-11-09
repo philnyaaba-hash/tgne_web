@@ -4,7 +4,11 @@ import SiteFooter from '../components/land/site-footer';
 import SiteHeader from '../components/land/site-header';
 import './(site)/land.css';
 
-export const metadata = { title: 'Page not found' };
+export const metadata = {
+  title: 'Page not found | TGNE Solutions',
+  description: 'This TGNE Solutions page could not be found.',
+  robots: { index: false, follow: true }
+};
 
 export default function NotFound() {
   return (

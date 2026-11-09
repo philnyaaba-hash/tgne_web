@@ -2,7 +2,8 @@ import { prisma } from '../../lib/prisma';
 import { verifyUnsubscribeToken } from '../../lib/growth';
 
 export const metadata = {
-  title: 'Unsubscribe — LandLedger',
+  title: 'Unsubscribe | TGNE Solutions',
+  description: 'Manage your TGNE Solutions email preferences.',
   robots: { index: false, follow: false }
 };
 

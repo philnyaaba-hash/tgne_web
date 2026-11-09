@@ -2,11 +2,14 @@ import Link from 'next/link';
 import Icon from '../../../components/land/icons';
 import TrackForm from '../../../components/land/track-form';
 import { LAND_SITE } from '../../../lib/land-site';
+import { createPageMetadata } from '../../../lib/site-metadata';
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'Track a reservation',
-  description: 'Look up a land reservation with your reference and the email address used to reserve.'
-};
+  description: 'Check the status of a TGNE land reservation using your reference and booking email address.',
+  path: '/track',
+  robots: { index: false, follow: true }
+});
 
 export default function TrackPage() {
   return (

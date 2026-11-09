@@ -100,8 +100,8 @@ export default function ClientsPanel({ notify, fail }) {
     <>
       <PageHeading
         eyebrow="Office · Client desk"
-        title="Clients, resales and service work"
-        description="Review resale requests, quote land services and keep each client's record in step with the storefront and accounts."
+        title="Clients, requests and delivery"
+        description="Manage client work requests from quote through completion, and keep each client's service and account records up to date."
         actions={<button className="office-button secondary" type="button" onClick={load} disabled={busy}><Icon name="refresh" size={14} />Refresh</button>}
       />
 

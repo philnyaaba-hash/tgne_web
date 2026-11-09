@@ -1,6 +1,6 @@
 export const metadata = {
-  title: 'Offline',
-  description: 'The workspace is temporarily offline.',
+  title: 'Offline | TGNE Solutions',
+  description: 'TGNE Solutions is temporarily unavailable offline. Reconnect to browse our services and contact the team.',
   robots: { index: false, follow: false }
 };
 

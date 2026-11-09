@@ -1,11 +1,13 @@
 import InquiryForm from '../../../components/land/inquiry-form';
 import Icon from '../../../components/land/icons';
 import { LAND_SITE } from '../../../lib/land-site';
+import { createPageMetadata } from '../../../lib/site-metadata';
 
-export const metadata = {
+export const metadata = createPageMetadata({
   title: 'Contact TGNE Solutions',
-  description: 'Speak to TGNE Solutions about website design, branding, print, ICT support and business technology services.'
-};
+  description: 'Contact TGNE Solutions in Tema, Ghana about website design, branding, print, ICT support and business technology services.',
+  path: '/contact'
+});
 
 export default function ContactPage() {
   return (

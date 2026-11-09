@@ -3,10 +3,19 @@ import Icon from '../../../../components/land/icons';
 import { formatDate, formatGhs, labelFor, PAYMENT_METHODS, RESERVATION_STATUSES } from '../../../../lib/land-commerce';
 import { getReservationByReference } from '../../../../lib/land-store';
 import { LAND_SITE } from '../../../../lib/land-site';
+import { createPageMetadata } from '../../../../lib/site-metadata';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata = { title: 'Reservation details' };
+export async function generateMetadata({ params }) {
+  const { reference } = await params;
+  return createPageMetadata({
+    title: 'Reservation status',
+    description: 'View the current status of your TGNE reservation request.',
+    path: `/orders/${encodeURIComponent(reference)}`,
+    robots: { index: false, follow: false }
+  });
+}
 
 function maskEmail(value) {
   const [name, domain] = String(value || '').split('@');
