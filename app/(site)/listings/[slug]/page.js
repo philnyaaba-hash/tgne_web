@@ -15,6 +15,7 @@ import {
 } from '../../../../lib/land-commerce';
 import { getPublishedListing, getRelatedListings } from '../../../../lib/land-store';
 import { LAND_SITE } from '../../../../lib/land-site';
+import { tgneShareImage } from '../../../../lib/site-metadata';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,7 +30,10 @@ export async function generateMetadata({ params }) {
       title: listing.title,
       description: listing.summary,
       type: 'website',
-      images: listing.imageUrls?.length ? [{ url: listing.imageUrls[0] }] : []
+      images: [
+        tgneShareImage,
+        ...(listing.imageUrls?.length ? [{ url: listing.imageUrls[0] }] : [])
+      ]
     }
   };
 }
