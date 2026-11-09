@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import Icon from '../../../components/land/icons';
 import { LAND_SITE } from '../../../lib/land-site';
 import { TGNE_AFFILIATE, TGNE_SHOP_CATEGORIES, TGNE_SHOP_ITEMS } from '../../../lib/tgne-shop';
@@ -91,13 +92,17 @@ export default async function ShopPage({ searchParams }) {
                 const enquiryUrl = `https://wa.me/233558122767?text=${encodeURIComponent(message)}`;
                 return (
                   <article className="tgne-product-card" id={`product-${item.id}`} key={item.id}>
-                    <div className={`tgne-product-visual tgne-product-visual-${item.visual}`} aria-hidden="true">
+                    <div className={`tgne-product-visual tgne-product-visual-${item.visual}${item.image ? ' tgne-product-visual-has-image' : ''}`} aria-hidden="true">
                       <span className="tgne-product-visual-index">{String(index + 1).padStart(2, '0')}</span>
-                      <div className="tgne-product-art">
-                        <span>{item.label}</span>
-                        <strong>{item.visual === 'computer' ? 'TECH' : item.visual === 'hosting' ? 'WEB' : item.visual === 'education' ? 'LEARN' : 'TGNE'}</strong>
-                        <i />
-                      </div>
+                      {item.image ? (
+                        <Image src={item.image} alt="" fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 33vw" />
+                      ) : (
+                        <div className="tgne-product-art">
+                          <span>{item.label}</span>
+                          <strong>{item.visual === 'computer' ? 'TECH' : item.visual === 'hosting' ? 'WEB' : item.visual === 'education' ? 'LEARN' : 'TGNE'}</strong>
+                          <i />
+                        </div>
+                      )}
                       <span className="tgne-product-visual-icon"><Icon name={item.icon} size={19} /></span>
                     </div>
                     <div className="tgne-product-content">

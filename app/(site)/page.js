@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import Icon from '../../components/land/icons';
 import HeroSlider from '../../components/tgne/hero-slider';
 import { LAND_SITE } from '../../lib/land-site';
@@ -21,10 +22,11 @@ const APPROACH = [
 function OfferCard({ item, index, decorative = false }) {
   const content = (
     <>
-      <span className="tgne-offer-visual">
+      <span className={`tgne-offer-visual${item.image ? ' tgne-offer-visual-has-image' : ''}`}>
+        {item.image ? <Image src={item.image} alt="" fill sizes="(max-width: 860px) 290px, 360px" /> : null}
         <span className="tgne-offer-number">{String(index + 1).padStart(2, '0')}</span>
         <span className="tgne-offer-icon"><Icon name={item.icon} size={24} /></span>
-        <span className="tgne-offer-visual-word">{item.visual === 'computer' ? 'TECH' : item.visual === 'hosting' ? 'WEB' : item.visual === 'education' ? 'LEARN' : 'TGNE'}</span>
+        {!item.image ? <span className="tgne-offer-visual-word">{item.visual === 'computer' ? 'TECH' : item.visual === 'hosting' ? 'WEB' : item.visual === 'education' ? 'LEARN' : 'TGNE'}</span> : null}
       </span>
       <span className="tgne-offer-copy">
         <small>{item.category}</small>

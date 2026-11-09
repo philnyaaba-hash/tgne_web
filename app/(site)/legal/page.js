@@ -13,7 +13,7 @@ export default function LegalPage() {
         <div className="ls-container">
           <p className="ls-eyebrow">The fine print, in plain language</p>
           <h1>Terms and privacy</h1>
-          <p className="ls-legal-date">Last updated 8 November 2026</p>
+          <p className="ls-legal-date">Last updated 9 November 2026</p>
         </div>
       </section>
 
@@ -58,7 +58,8 @@ export default function LegalPage() {
           </p>
           <ul>
             <li>We use your details only to answer questions, prepare a quote, or manage agreed project communications.</li>
-            <li>We will share information only with the people working directly on your project where required.</li>
+            <li>Service request submissions are processed by Formspree so they can be delivered to our team.</li>
+            <li>We share information with people working directly on your project or service providers where required to handle your enquiry.</li>
             <li>You may ask us to correct or clarify the details we hold about you.</li>
           </ul>
         </section>

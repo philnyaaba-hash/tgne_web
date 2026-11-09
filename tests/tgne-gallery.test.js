@@ -29,11 +29,24 @@ test('homepage slideshow includes every portfolio image', async () => {
   }
 });
 
-test('homepage product and service offerings remain text-led without card image mappings', async () => {
+test('homepage product and service image mappings are assigned to the matching offerings', async () => {
   const { TGNE_SHOP_ITEMS } = await load();
+  const imageByProduct = {
+    computers: 'https://res.cloudinary.com/ea91sdts/image/upload/v1794219149/serving.avif',
+    'software-ai': 'https://res.cloudinary.com/ea91sdts/image/upload/v1794219443/ai.avif',
+    branding: 'https://res.cloudinary.com/ea91sdts/image/upload/v1794174702/TGNE-Branded-Food-Product-Jars-Alternate.jpg',
+    print: 'https://res.cloudinary.com/ea91sdts/image/upload/v1794174732/TGNE-Custom-Printed-Notebooks.jpg',
+    signage: 'https://res.cloudinary.com/ea91sdts/image/upload/v1794174748/TGNE-Educational-Booklet-Printing-Third.jpg',
+    hosting: 'https://res.cloudinary.com/ea91sdts/image/upload/v1794219150/network-servers-set_1284-12642.avif',
+    education: 'https://res.cloudinary.com/ea91sdts/image/upload/v1794219149/edu_consult.avif'
+  };
 
   assert.ok(TGNE_SHOP_ITEMS.length > 0);
   for (const item of TGNE_SHOP_ITEMS) {
-    assert.equal(Object.hasOwn(item, 'image'), false, `${item.id} should not add an image to its offering card`);
+    if (imageByProduct[item.id]) {
+      assert.equal(item.image, imageByProduct[item.id]);
+    } else {
+      assert.equal(Object.hasOwn(item, 'image'), false, `${item.id} should not add an image to its offering card`);
+    }
   }
 });

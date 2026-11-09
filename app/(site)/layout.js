@@ -1,5 +1,6 @@
 import SiteFooter from '../../components/land/site-footer';
 import SiteHeader from '../../components/land/site-header';
+import ScrollControls from '../../components/land/scroll-controls';
 import WhatsAppFloat from '../../components/land/whatsapp-float';
 import { LAND_SITE } from '../../lib/land-site';
 import { siteMetadataBase, tgneShareImage } from '../../lib/site-metadata';
@@ -41,6 +42,7 @@ export default function LandLayout({ children }) {
       <SiteHeader />
       <main id="land-main">{children}</main>
       <SiteFooter />
+      <ScrollControls />
       <WhatsAppFloat />
     </div>
   );

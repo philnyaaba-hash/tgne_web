@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import Icon from './icons';
+import MobileMenu from './mobile-menu';
 import { LAND_SITE } from '../../lib/land-site';
 
 const LINKS = [
@@ -35,15 +36,7 @@ export default function SiteHeader() {
             Call Us
             <Icon name="arrowRight" size={15} />
           </a>
-          <details className="ls-mobile-menu">
-            <summary className="ls-menu-toggle" aria-label="Open or close navigation menu">
-              <Icon name="menu" size={22} />
-            </summary>
-            <nav id="land-mobile-nav" className="ls-mobile-nav" aria-label="Mobile navigation">
-              {LINKS.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}
-              <Link href="/contact" className="ls-button ls-button-primary">Contact Us <Icon name="arrowRight" size={15} /></Link>
-            </nav>
-          </details>
+          <MobileMenu links={LINKS} />
         </div>
       </div>
     </header>

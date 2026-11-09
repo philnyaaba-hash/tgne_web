@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Icon from '../../../components/land/icons';
+import ServiceRequestGrid from '../../../components/land/service-request-grid';
 import { TGNE_SERVICES } from '../../../lib/tgne-services';
 
 export const metadata = {
@@ -21,16 +22,7 @@ export default function ServicesPage() {
 
       <section className="ls-section" id="products">
         <div className="ls-container">
-          <div className="tgne-service-grid tgne-service-grid-page">
-            {TGNE_SERVICES.map((service, index) => (
-              <article className="tgne-service-card" key={service.title}>
-                <span className="tgne-service-top"><span>0{index + 1}</span><Icon name={service.icon} size={20} /></span>
-                <h2>{service.title}</h2>
-                <p>{service.copy}</p>
-                <Link href="/contact" className="tgne-service-link">Discuss this service <Icon name="arrowRight" size={14} /></Link>
-              </article>
-            ))}
-          </div>
+          <ServiceRequestGrid services={TGNE_SERVICES} />
         </div>
       </section>
 
