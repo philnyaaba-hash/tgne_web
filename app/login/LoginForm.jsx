@@ -10,7 +10,15 @@ const LOGIN_API = '/api/auth/login';
 const SESSION_API = '/api/auth/session';
 const QUICK_LOGIN_API = '/api/auth/quick-login';
 const REMEMBER_KEY = 'tgne.login.remember';
-const DEFAULT_REDIRECT = '/dashboard';
+const DEFAULT_REDIRECT = '/client';
+
+// Only allow relative, same-origin paths. No external URLs, no protocol-relative
+// URLs (//evil.com), no javascript: or data: schemes.
+function isSafeRedirectPath(path) {
+  if (typeof path !== 'string' || !path) return false;
+  // Must start with / and not be // (protocol-relative) or /\\ (Windows path).
+  return /^\/[^\/\\]/.test(path);
+}
 
 export default function LoginForm() {
   const router = useRouter();
@@ -42,7 +50,7 @@ export default function LoginForm() {
         if (res.ok) {
           const data = await res.json();
           if (data.user && !cancelled) {
-            const next = DEFAULT_REDIRECT;
+            const next = isSafeRedirectPath(DEFAULT_REDIRECT) ? DEFAULT_REDIRECT : '/client';
             router.replace(next);
           }
         }
@@ -83,7 +91,7 @@ export default function LoginForm() {
         }
 
         setStatus('ok');
-        const next = DEFAULT_REDIRECT;
+        const next = isSafeRedirectPath(DEFAULT_REDIRECT) ? DEFAULT_REDIRECT : '/client';
         router.replace(next);
       } catch {
         setStatus('error');
@@ -109,7 +117,8 @@ export default function LoginForm() {
           setError(data?.error || 'Demo sign-in is not available on this deployment.');
           return;
         }
-        router.replace(DEFAULT_REDIRECT);
+        const next = isSafeRedirectPath(DEFAULT_REDIRECT) ? DEFAULT_REDIRECT : '/client';
+        router.replace(next);
       } catch {
         setError('Demo sign-in could not be completed. Try the email form below.');
       } finally {
