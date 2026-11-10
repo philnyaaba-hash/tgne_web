@@ -6,10 +6,8 @@ import SiteNav from './site-nav';
 import { LAND_SITE } from '../../lib/land-site';
 
 const LINKS = [
-  { href: '/', label: 'Home', children: [
-    { href: '/about', label: 'About Us' },
-    { href: '/login', label: 'Client area' }
-  ] },
+  { href: '/', label: 'Home', children: [{ href: '/about', label: 'About Us' }] },
+  { href: '/login', label: 'Client login' },
   { href: '/services', label: 'Our Services' },
   { href: '/shop', label: 'Products' },
   { href: '/gallery', label: 'Gallery' },
