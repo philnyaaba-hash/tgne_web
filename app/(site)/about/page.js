@@ -29,15 +29,17 @@ export default function AboutPage() {
     <>
       <section className="tgne-page-hero tgne-about-hero">
         <div className="ls-container tgne-page-hero-inner">
-          <p className="ls-eyebrow"><span /> About {LAND_SITE.storeName}</p>
-          <h1>Dream it. <em>See it.</em></h1>
-          <p>
-            TGNE Solutions is a service-oriented company based in Tema, Ghana, bringing together ICT, graphic design
-            and print, and education consultancy.
-          </p>
-          <Link href="/services" className="ls-button ls-button-primary">
-            Explore our services <Icon name="arrowRight" size={15} />
-          </Link>
+          <div className="tgne-hero-copy">
+            <p className="ls-eyebrow"><span /> About {LAND_SITE.storeName}</p>
+            <h1>Dream it. <em>See it.</em></h1>
+            <p>
+              TGNE Solutions is a service-oriented company based in Tema, Ghana, bringing together ICT, graphic design
+              and print, and education consultancy.
+            </p>
+            <Link href="/services" className="ls-button ls-button-primary">
+              Explore our services <Icon name="arrowRight" size={15} />
+            </Link>
+          </div>
           <div className="tgne-about-hero-image" aria-hidden="true" />
         </div>
       </section>
