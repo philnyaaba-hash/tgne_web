@@ -143,9 +143,6 @@ export default function ForgotPasswordForm() {
         <div className={styles.forgotFooter}>
           TGNE Solutions · Technology, design and ICT support in Tema, Ghana.
         </div>
-        <p className={styles.forgotDisclaimer}>
-          Demo credentials are for evaluation only and do not connect to live client data.
-        </p>
       </main>
     </div>
   );

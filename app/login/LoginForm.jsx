@@ -8,7 +8,6 @@ import styles from './login.module.css';
 
 const LOGIN_API = '/api/auth/login';
 const SESSION_API = '/api/auth/session';
-const QUICK_LOGIN_API = '/api/auth/quick-login';
 const REMEMBER_KEY = 'tgne.login.remember';
 const DEFAULT_REDIRECT = '/client';
 
@@ -28,7 +27,6 @@ export default function LoginForm() {
   const [remember, setRemember] = useState(false);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
-  const [quickLoading, setQuickLoading] = useState(false);
   const formRef = useRef(null);
 
   // Restore remembered email on mount.
@@ -99,33 +97,6 @@ export default function LoginForm() {
       }
     },
     [email, password, remember, router]
-  );
-
-  const handleQuickLogin = useCallback(
-    async (role) => {
-      setError('');
-      setQuickLoading(true);
-      try {
-        const res = await fetch(QUICK_LOGIN_API, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          credentials: 'same-origin',
-          body: JSON.stringify({ role })
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          setError(data?.error || 'Demo sign-in is not available on this deployment.');
-          return;
-        }
-        const next = isSafeRedirectPath(DEFAULT_REDIRECT) ? DEFAULT_REDIRECT : '/client';
-        router.replace(next);
-      } catch {
-        setError('Demo sign-in could not be completed. Try the email form below.');
-      } finally {
-        setQuickLoading(false);
-      }
-    },
-    [router]
   );
 
   // Show the success state briefly, then redirect (router.replace already called).
@@ -245,38 +216,12 @@ export default function LoginForm() {
           </div>
         </form>
 
-        <div className={styles.loginDivider}>
-          <span>Or continue with demo</span>
-        </div>
-
-        <div className={styles.loginDemo}>
-          <button
-            type="button"
-            className={styles.loginDemoBtn}
-            onClick={() => handleQuickLogin('SUPER_ADMIN')}
-            disabled={quickLoading}
-          >
-            <Icon name="shield" size={16} />
-            Admin
-          </button>
-          <button
-            type="button"
-            className={styles.loginDemoBtn}
-            onClick={() => handleQuickLogin('CLIENT')}
-            disabled={quickLoading}
-          >
-            <Icon name="users" size={16} />
-            Client
-          </button>
-        </div>
-
         <div className={styles.loginFooter}>
           New to TGNE?{' '}
           <a href="/contact">Request workspace access</a>
         </div>
         <p className={styles.loginDisclaimer}>
-          TGNE Solutions · Technology, design and ICT support in Tema, Ghana. Demo credentials are for
-          evaluation only and do not connect to live client data.
+          TGNE Solutions · Technology, design and ICT support in Tema, Ghana.
         </p>
       </main>
     </div>

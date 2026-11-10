@@ -6,14 +6,16 @@ import SiteNav from './site-nav';
 import { LAND_SITE } from '../../lib/land-site';
 
 const LINKS = [
-  { href: '/', label: 'Home', children: [{ href: '/about', label: 'About Us' }] },
+  { href: '/', label: 'Home', children: [
+    { href: '/about', label: 'About Us' },
+    { href: '/login', label: 'Client area' }
+  ] },
   { href: '/services', label: 'Our Services' },
   { href: '/shop', label: 'Products' },
   { href: '/gallery', label: 'Gallery' },
   { href: '/case-studies', label: 'Case Studies' },
   { href: '/blog', label: 'Blog' },
-  { href: '/contact', label: 'Contact Us' },
-  { href: '/login', label: 'Client area' }
+  { href: '/contact', label: 'Contact Us' }
 ];
 
 export default function SiteHeader() {
