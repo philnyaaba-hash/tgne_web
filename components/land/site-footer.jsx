@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import Icon from './icons';
 import { LAND_SITE } from '../../lib/land-site';
 
@@ -8,6 +9,9 @@ export default function SiteFooter() {
       <div className="ls-container">
         <div className="ls-footer-grid">
           <div className="ls-footer-brand">
+            <div className="ls-footer-brand-mark">
+              <Image src="/assets/tgne-logo.png" alt="TGNE Solutions" width={58} height={58} loading="eager" />
+            </div>
             <strong>{LAND_SITE.storeName}</strong>
             <p>{LAND_SITE.tagline}</p>
             <p className="ls-footer-note">
