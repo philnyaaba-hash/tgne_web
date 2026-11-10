@@ -25,6 +25,11 @@ export default function MobileMenu({ links }) {
         {links.map((link) => (
           <Link key={link.href} href={link.href} aria-current={isActive(pathname, link.href) ? 'page' : undefined}>
             {link.label}
+            {link.submenu && (
+              <span className="ls-mobile-submenu" aria-hidden="true">
+                <Icon name="chevronDown" size={14} />
+              </span>
+            )}
           </Link>
         ))}
         <Link href="/contact" className="ls-button ls-button-primary">Contact Us <Icon name="arrowRight" size={15} /></Link>

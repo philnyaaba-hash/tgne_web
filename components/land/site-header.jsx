@@ -7,7 +7,7 @@ import { LAND_SITE } from '../../lib/land-site';
 
 const LINKS = [
   { href: '/', label: 'Home' },
-  { href: '/about', label: 'About Us' },
+  { href: '/about', label: 'About Us', submenu: true },
   { href: '/services', label: 'Our Services' },
   { href: '/shop', label: 'Products' },
   { href: '/gallery', label: 'Gallery' },

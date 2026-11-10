@@ -38,6 +38,7 @@ export default function AboutPage() {
           <Link href="/services" className="ls-button ls-button-primary">
             Explore our services <Icon name="arrowRight" size={15} />
           </Link>
+          <div className="tgne-about-hero-image" aria-hidden="true" />
         </div>
       </section>
 

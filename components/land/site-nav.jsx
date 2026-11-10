@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Icon from './icons';
 
 function isActive(pathname, href) {
   return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
@@ -19,6 +20,11 @@ export default function SiteNav({ links }) {
           aria-current={isActive(pathname, link.href) ? 'page' : undefined}
         >
           {link.label}
+          {link.submenu && (
+            <span className="ls-nav-submenu" aria-hidden="true">
+              <Icon name="chevronDown" size={10} />
+            </span>
+          )}
         </Link>
       ))}
     </nav>
