@@ -30,9 +30,7 @@ export default function SiteNav({ links, user }) {
   ];
 
   if (user) {
-    if (isStaffUser) {
-      navLinks.push({ href: '/dashboard', label: 'Dashboard' });
-    } else {
+    if (!isStaffUser) {
       navLinks.push({ href: '/client', label: 'Client Portal' });
     }
   } else {
