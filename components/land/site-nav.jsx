@@ -18,8 +18,8 @@ export default function SiteNav({ links, user }) {
   const pathname = usePathname();
   const isStaffUser = isStaff(user);
 
-  // Build dynamic nav based on auth state
-  const navLinks = [
+  // Build nav from props passed by header
+  const navLinks = links ? [...links] : [
     { href: '/', label: 'Home', children: [{ href: '/about', label: 'About Us' }] },
     { href: '/services', label: 'Our Services' },
     { href: '/shop', label: 'Products' },
@@ -30,14 +30,12 @@ export default function SiteNav({ links, user }) {
   ];
 
   if (user) {
-    // Authenticated: show dashboard or client portal instead of login
     if (isStaffUser) {
       navLinks.push({ href: '/dashboard', label: 'Dashboard' });
     } else {
       navLinks.push({ href: '/client', label: 'Client Portal' });
     }
   } else {
-    // Not authenticated: show login
     navLinks.push({ href: '/login', label: 'Client Login' });
   }
 
