@@ -30,7 +30,7 @@ export default function SiteHeader() {
           </span>
         </Link>
 
-        <SiteNav />
+        <SiteNav links={LINKS} />
 
         <div className="ls-header-actions">
           <a href={'tel:' + LAND_SITE.phone.replace(/[^\d+]/g, '')} className="ls-button ls-button-primary ls-header-cta">

@@ -4,21 +4,11 @@ import { usePathname } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import Icon from './icons';
 
-const LINKS = [
-  { href: '/', label: 'Home', children: [{ href: '/about', label: 'About Us' }] },
-  { href: '/services', label: 'Our Services' },
-  { href: '/shop', label: 'Products' },
-  { href: '/gallery', label: 'Gallery' },
-  { href: '/case-studies', label: 'Case Studies' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/contact', label: 'Contact Us' }
-];
-
 function isActive(pathname, href) {
   return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function SiteNav() {
+export default function SiteNav({ links }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -29,7 +19,7 @@ export default function SiteNav() {
 
   return (
     <nav className="ls-nav" aria-label="Main navigation">
-      {LINKS.map((link) => {
+      {links.map((link) => {
         const hasChildren = link.children && link.children.length > 0;
         return (
           <div key={link.href} className="ls-nav-item-wrapper">
