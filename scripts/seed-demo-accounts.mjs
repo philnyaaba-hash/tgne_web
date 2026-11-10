@@ -1,6 +1,5 @@
-import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
 import { hash } from 'bcryptjs';
+import { readFileSync } from 'node:fs';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaClient } from '@prisma/client';
 import { DEMO_ACCOUNTS } from '../lib/demo-accounts.js';
@@ -34,7 +33,7 @@ for (const account of DEMO_ACCOUNTS) {
     create: {
       email: account.email,
       name: account.name,
-      passwordHash: await hash(randomUUID(), 10),
+      passwordHash: await hash(account.password, 10),
       jobTitle: 'Demo account',
       status: 'ACTIVE'
     }
@@ -76,7 +75,7 @@ for (const account of DEMO_ACCOUNTS) {
     }
   }
 
-  console.log('Seeded ' + account.role + ' as ' + account.email);
+  console.log('Seeded ' + account.role + ' as ' + account.email + ' (password: ' + account.password + ')');
 }
 
 await prisma.$disconnect();
