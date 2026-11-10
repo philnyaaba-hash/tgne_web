@@ -490,6 +490,9 @@ export default function ClientPortal({ mode, user }) {
             {!isAdmin && <label className={styles.searchBox}><Icon name="search" size={17} /><span className={styles.srOnly}>Search orders</span><input value={query} onChange={(event) => { setQuery(event.target.value); setPage('orders'); }} placeholder="Search orders…" /></label>}
             <span className={styles.demoBadge}>LOCAL DEMO</span>
             <div className={styles.profileAvatar} aria-label={isAdmin ? 'Kofi Asante' : 'Volta Foods'}>{isAdmin ? 'KA' : 'VF'}</div>
+            <button type="button" className={styles.logoutButton} onClick={handleLogout}>
+              <Icon name="logout" size={15} /> Sign out
+            </button>
           </div>
         </header>
         <div className={styles.content}>
