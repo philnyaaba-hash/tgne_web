@@ -31,14 +31,14 @@ export default function ContactPage() {
             <article className="ls-contact-card">
               <span className="ls-contact-icon"><Icon name="mail" size={19} /></span>
               <h2>Email</h2>
-              <p>Best for project enquiries and quote requests.</p>
+              <p>Best for project enquiries, quotes and detailed briefs.</p>
               <a href={'mailto:' + LAND_SITE.email}>{LAND_SITE.email}</a>
             </article>
           ) : null}
           <article className="ls-contact-card">
             <span className="ls-contact-icon"><Icon name="phone" size={19} /></span>
             <h2>Phone</h2>
-            <p>Call us during office hours for a quick answer.</p>
+            <p>Speak with our team during office hours.</p>
             <a href={'tel:' + LAND_SITE.phone.replace(/[^\d+]/g, '')}>{LAND_SITE.phone}</a>
             <a href={'tel:' + LAND_SITE.phoneAlt.replace(/[^\d+]/g, '')}>{LAND_SITE.phoneAlt}</a>
             <a href={'tel:' + LAND_SITE.officePhone.replace(/[^\d+]/g, '')}>{LAND_SITE.officePhone}</a>
@@ -47,14 +47,14 @@ export default function ContactPage() {
           <article className="ls-contact-card">
             <span className="ls-contact-icon"><Icon name="mapPin" size={19} /></span>
             <h2>Location</h2>
-            <p>We support businesses across Ghana from our base in Tema.</p>
+            <p>Based in Tema, serving businesses across Ghana.</p>
             <span>{LAND_SITE.address}</span>
             <span>Mail: {LAND_SITE.mailingAddress}</span>
           </article>
           <article className="ls-contact-card">
             <span className="ls-contact-icon"><Icon name="clock" size={19} /></span>
-            <h2>Hours</h2>
-            <p>Consultations and project reviews are scheduled during business hours.</p>
+            <h2>Office Hours</h2>
+            <p>We're here to help during business hours.</p>
             <span>{LAND_SITE.hours}</span>
           </article>
 
@@ -64,8 +64,8 @@ export default function ContactPage() {
               <span className="tgne-response-kicker">A QUICK RESPONSE STARTS HERE</span>
               <strong>Help us make our first reply useful.</strong>
               <p>
-                Tell us what you want to achieve, the challenge you are facing, and when you need support. We will
-                review your brief and recommend a suitable service and practical next step.
+                Tell us what you want to achieve, the challenge you're facing, and when you need support. We'll
+                review your brief and recommend the right service and practical next step.
               </p>
               <div className="tgne-response-points">
                 <span>Your goal</span>
