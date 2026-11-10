@@ -247,9 +247,9 @@
   .sidebar { z-index: 1; min-height: 0; padding: 8px 12px 0; }
   .brand { display: none; }
   .workspaceLabel, .sidebarFooter { display: none; }
-  .navigation { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 8px; }
-  .navItem { width: auto; flex: 0 0 auto; gap: 7px; padding: 8px 10px; white-space: nowrap; }
-  .navItem > svg { width: 16px; height: 16px; }
+  .navigation { display: grid; gap: 4px; padding-bottom: 8px; }
+  .navItem { width: 100%; flex: none; gap: 12px; padding: 10px 11px; white-space: normal; }
+  .navItem > svg { width: 18px; height: 18px; }
   .navItem > span:nth-child(2) { flex: none; font-size: 11px; }
   .navCount { min-width: 18px; padding: 1px 5px; }
   .main { min-height: 0; }
