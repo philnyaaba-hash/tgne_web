@@ -12,5 +12,6 @@ lighthouse-report.html
 lighthouse-report.json
 .lighthouseci
 .vercel
+.neon
 .DS_Store
 Thumbs.db
