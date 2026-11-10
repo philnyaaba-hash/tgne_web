@@ -5,18 +5,35 @@ import MobileMenu from './mobile-menu';
 import SiteNav from './site-nav';
 import { LAND_SITE } from '../../lib/land-site';
 
-const LINKS = [
-  { href: '/', label: 'Home', children: [{ href: '/about', label: 'About Us' }] },
-  { href: '/login', label: 'Client login' },
-  { href: '/services', label: 'Our Services' },
-  { href: '/shop', label: 'Products' },
-  { href: '/gallery', label: 'Gallery' },
-  { href: '/case-studies', label: 'Case Studies' },
-  { href: '/blog', label: 'Blog' },
-  { href: '/contact', label: 'Contact Us' }
-];
+const STAFF_ROLES = ['SUPER_ADMIN', 'OFFICE_MANAGER', 'ACCOUNTANT', 'SURVEYOR', 'RECEPTIONIST'];
+
+function isStaff(user) {
+  return user && user.roles.some((r) => STAFF_ROLES.includes(r.key));
+}
 
 export default function SiteHeader({ user }) {
+  const isStaffUser = isStaff(user);
+
+  const navLinks = [
+    { href: '/', label: 'Home', children: [{ href: '/about', label: 'About Us' }] },
+    { href: '/services', label: 'Our Services' },
+    { href: '/shop', label: 'Products' },
+    { href: '/gallery', label: 'Gallery' },
+    { href: '/case-studies', label: 'Case Studies' },
+    { href: '/blog', label: 'Blog' },
+    { href: '/contact', label: 'Contact Us' }
+  ];
+
+  if (user) {
+    if (isStaffUser) {
+      navLinks.push({ href: '/dashboard', label: 'Dashboard' });
+    } else {
+      navLinks.push({ href: '/client', label: 'Client Portal' });
+    }
+  } else {
+    navLinks.push({ href: '/login', label: 'Client Login' });
+  }
+
   return (
     <header className="ls-header">
       <div className="ls-container ls-header-inner">
@@ -30,7 +47,7 @@ export default function SiteHeader({ user }) {
           </span>
         </Link>
 
-        <SiteNav links={LINKS} user={user} />
+        <SiteNav links={navLinks} user={user} />
 
         <div className="ls-header-actions">
           <a href={'tel:' + LAND_SITE.phone.replace(/[^\d+]/g, '')} className="ls-button ls-button-primary ls-header-cta">
