@@ -51,7 +51,8 @@
 .ls-nav a:hover .ls-nav-submenu { color: var(--ls-green); }
 
 /* Desktop dropdown for links with children */
-.ls-nav-dropdown-wrapper { position: relative; display: inline-flex; align-items: center; }
+.ls-nav-item-wrapper { position: relative; display: inline-flex; align-items: center; }
+.ls-nav-link { color: inherit; text-decoration: none; font-size: 13px; font-weight: 620; }
 .ls-nav-dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -69,7 +70,7 @@
   transform: translateY(-6px);
   transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
 }
-.ls-nav-dropdown-wrapper:hover .ls-nav-dropdown {
+.ls-nav-item-wrapper:hover .ls-nav-dropdown {
   display: block;
   opacity: 1;
   visibility: visible;

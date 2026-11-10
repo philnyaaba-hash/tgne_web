@@ -14,42 +14,34 @@ export default function SiteNav({ links }) {
   return (
     <nav className="ls-nav" aria-label="Main navigation">
       {links.map((link) => {
-        if (!link.children) {
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              aria-current={isActive(pathname, link.href) ? 'page' : undefined}
-            >
-              {link.label}
-            </Link>
-          );
-        }
+        const hasChildren = link.children && link.children.length > 0;
 
         return (
-          <div key={link.href} className="ls-nav-dropdown-wrapper">
+          <div key={link.href} className="ls-nav-item-wrapper">
             <Link
               href={link.href}
-              className="ls-nav-link ls-has-children"
+              className="ls-nav-link"
               aria-current={isActive(pathname, link.href) ? 'page' : undefined}
-              aria-haspopup="true"
-              aria-expanded="false"
+              aria-haspopup={hasChildren ? 'true' : undefined}
+              aria-expanded={hasChildren ? 'false' : undefined}
             >
               {link.label}
-              <Icon name="chevronDown" size={10} />
+              {hasChildren && <Icon name="chevronDown" size={10} />}
             </Link>
-            <div className="ls-nav-dropdown">
-              {link.children.map((child) => (
-                <Link
-                  key={child.href}
-                  href={child.href}
-                  className="ls-nav-dropdown-link"
-                  aria-current={isActive(pathname, child.href) ? 'page' : undefined}
-                >
-                  {child.label}
-                </Link>
-              ))}
-            </div>
+            {hasChildren && (
+              <div className="ls-nav-dropdown">
+                {link.children.map((child) => (
+                  <Link
+                    key={child.href}
+                    href={child.href}
+                    className="ls-nav-dropdown-link"
+                    aria-current={isActive(pathname, child.href) ? 'page' : undefined}
+                  >
+                    {child.label}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         );
       })}
