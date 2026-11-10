@@ -160,6 +160,15 @@ function OrderTable({ orders, onTrack, admin = false, onStatusChange }) {
 export default function ClientPortal({ mode, user }) {
   const isAdmin = mode === 'admin';
   const clientName = user?.name || 'Valued Client';
+
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    } catch {
+      // Ignore network errors; still redirect
+    }
+    window.location.href = '/login';
+  }
   const [orders, setOrders] = useState(DEMO_ORDERS);
   const [page, setPage] = useState('overview');
   const [filter, setFilter] = useState('All');
@@ -295,7 +304,13 @@ export default function ClientPortal({ mode, user }) {
             <span className={styles.welcomeEyebrow}>Corporate client portal</span>
             <h2>Welcome back, {clientName}</h2>
             <p>Keep track of your TGNE work, review quotes and place your next service request.</p>
-            <button type="button" className={styles.primaryButton} onClick={() => setPage('new-order')}><Icon name="plus" size={17} /> Place a new order</button>
+            <div className={styles.welcomeActions}>
+              <button type="button" className={styles.primaryButton} onClick={() => setPage('new-order')}><Icon name="plus" size={15} /> Place a new order</button>
+              <button type="button" className={styles.logoutButton} onClick={handleLogout}>
+                <Icon name="logout" size={14} />
+                Sign out
+              </button>
+            </div>
           </div>
           <div className={styles.welcomeStats}>
             <div><strong>{activeOrders.length}</strong><span>Open orders</span></div>

@@ -41,8 +41,24 @@ export default async function Page() {
   if (!isStaff) {
     redirect('/client');
   }
+
+  async function handleLogout() {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    } catch {}
+    window.location.href = '/login';
+  }
+
   return (
     <>
+      <div className="dashboard-logout-bar" style={{ marginBottom: 16 }}>
+        <button type="button" onClick={handleLogout} className="dashboard-logout-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 6, border: '1px solid var(--ls-line)', background: 'transparent', color: 'var(--ls-ink)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background-color .15s ease' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+            <path d="M10 17l5-5-5-5M15 12H3" /><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" />
+          </svg>
+          Sign out
+        </button>
+      </div>
       <LegacyApp />
       <WorkspaceAssistant />
     </>

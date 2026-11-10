@@ -82,7 +82,20 @@ export default function MobileMenu({ links, user }) {
           );
         })}
         <Link href="/contact" className="ls-button ls-button-primary">Contact Us <Icon name="arrowRight" size={15} /></Link>
+        {user && (
+          <button type="button" className="ls-button ls-button-primary" onClick={handleLogout} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 6, border: '1px solid var(--ls-line)', background: 'transparent', color: 'var(--ls-ink)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background-color .15s ease', width: '100%' }}>
+            <Icon name="logout" size={14} />
+            Sign out
+          </button>
+        )}
       </nav>
     </details>
   );
+}
+
+async function handleLogout() {
+  try {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+  } catch {}
+  window.location.href = '/login';
 }
