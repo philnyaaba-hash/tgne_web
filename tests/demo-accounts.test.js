@@ -11,7 +11,7 @@ test('every workspace role has exactly one quick sign-in demo account', () => {
   assert.equal(new Set(roles).size, roles.length);
   assert.equal(new Set(DEMO_ACCOUNTS.map((account) => account.email)).size, DEMO_ACCOUNTS.length);
   for (const account of DEMO_ACCOUNTS) {
-    assert.match(account.email, /^demo\.[a-z-]+@landledger\.test$/);
+    assert.match(account.email, /^[a-z-]+@tgnesolutions\.com$/);
     assert.ok(demoAccountFor(account.role));
   }
   assert.equal(demoAccountFor('NOT_A_ROLE'), null);

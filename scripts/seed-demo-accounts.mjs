@@ -26,15 +26,24 @@ if (missing.length) {
   process.exit(1);
 }
 
+// Remove legacy accounts from earlier @landledger.test seeds.
+const legacyEmails = ['demo.admin', 'demo.manager', 'demo.accountant', 'demo.surveyor', 'demo.receptionist', 'demo.visitor', 'demo.client']
+  .map((local) => local + '@landledger.test');
+const legacyUsers = await prisma.user.findMany({ where: { email: { in: legacyEmails } }, select: { id: true } });
+if (legacyUsers.length) {
+  await prisma.user.deleteMany({ where: { id: { in: legacyUsers.map((user) => user.id) } } });
+  console.log('Removed ' + legacyUsers.length + ' legacy landledger.test account(s).');
+}
+
 for (const account of DEMO_ACCOUNTS) {
   const user = await prisma.user.upsert({
     where: { email: account.email },
-    update: { name: account.name, status: 'ACTIVE' },
+    update: { name: account.name, passwordHash: await hash(account.password, 10), status: 'ACTIVE' },
     create: {
       email: account.email,
       name: account.name,
       passwordHash: await hash(account.password, 10),
-      jobTitle: 'Demo account',
+      jobTitle: 'TGNE team account',
       status: 'ACTIVE'
     }
   });
@@ -48,8 +57,8 @@ for (const account of DEMO_ACCOUNTS) {
       update: {},
       create: {
         userId: user.id,
-        clientCode: 'DEMO-CLIENT',
-        address: 'Demo account',
+        clientCode: 'TGNE-CLIENT',
+        address: 'TGNE Solutions',
         region: 'Greater Accra',
         city: 'Accra'
       }
@@ -69,7 +78,7 @@ for (const account of DEMO_ACCOUNTS) {
           currentValue: 245000,
           titleStatus: 'REGISTERED',
           status: 'ACTIVE',
-          notes: 'Demo holding for the quick sign-in client account.'
+          notes: 'TGNE client holding for the client portal account.'
         }
       });
     }
