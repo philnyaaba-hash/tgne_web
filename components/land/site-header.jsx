@@ -54,7 +54,7 @@ export default function SiteHeader({ user }) {
             Call Us
             <Icon name="arrowRight" size={15} />
           </a>
-          <MobileMenu links={LINKS} user={user} />
+          <MobileMenu links={navLinks} user={user} />
         </div>
       </div>
     </header>
