@@ -49,6 +49,71 @@
 }
 .ls-nav a[aria-current="page"] .ls-nav-submenu { color: var(--ls-green); }
 .ls-nav a:hover .ls-nav-submenu { color: var(--ls-green); }
+
+/* Desktop dropdown for links with children */
+.ls-nav-dropdown-wrapper { position: relative; display: inline-flex; align-items: center; }
+.ls-nav-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 170px;
+  padding: 10px 0;
+  border: 1px solid var(--ls-line);
+  border-radius: 10px;
+  background: var(--ls-paper);
+  box-shadow: var(--ls-shadow);
+  display: none;
+  z-index: 40;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
+}
+.ls-nav-dropdown-wrapper:hover .ls-nav-dropdown {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.ls-nav-dropdown-link {
+  display: block;
+  padding: 8px 16px;
+  color: var(--ls-ink);
+  font-size: 13px;
+  font-weight: 550;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ls-nav-dropdown-link:hover { color: var(--ls-green); background: var(--ls-sage-soft); }
+
+/* Mobile submenu accordion */
+.ls-mobile-submenu-details { margin: 4px 0 0; }
+.ls-mobile-submenu-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--ls-ink);
+  font-size: 15px;
+  font-weight: 550;
+  cursor: pointer;
+  list-style: none;
+  outline: none;
+}
+.ls-mobile-submenu-summary::-webkit-details-marker { display: none; }
+.ls-mobile-submenu-summary svg { transition: transform .18s ease; }
+.ls-mobile-submenu-details[open] .ls-mobile-submenu-summary svg { transform: rotate(180deg); }
+.ls-mobile-submenu-link {
+  display: block;
+  padding: 9px 6px 9px 26px;
+  color: var(--ls-muted);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.ls-mobile-submenu-link:hover { color: var(--ls-green); background: var(--ls-sage-soft); }
 .ls-mobile-nav a[aria-current="page"] { color: var(--ls-forest); font-weight: 750; }
 .ls-mobile-submenu {
   display: inline-flex;

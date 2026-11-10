@@ -22,16 +22,38 @@ export default function MobileMenu({ links }) {
         <Icon name="menu" size={22} />
       </summary>
       <nav id="land-mobile-nav" className="ls-mobile-nav" aria-label="Mobile navigation">
-        {links.map((link) => (
-          <Link key={link.href} href={link.href} aria-current={isActive(pathname, link.href) ? 'page' : undefined}>
-            {link.label}
-            {link.submenu && (
-              <span className="ls-mobile-submenu" aria-hidden="true">
+        {links.map((link) => {
+          if (!link.children) {
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={isActive(pathname, link.href) ? 'page' : undefined}
+              >
+                {link.label}
+              </Link>
+            );
+          }
+
+          return (
+            <details key={link.href} className="ls-mobile-submenu-details">
+              <summary className="ls-mobile-submenu-summary" aria-expanded="false">
+                {link.label}
                 <Icon name="chevronDown" size={14} />
-              </span>
-            )}
-          </Link>
-        ))}
+              </summary>
+              {link.children.map((child) => (
+                <Link
+                  key={child.href}
+                  href={child.href}
+                  className="ls-mobile-submenu-link"
+                  aria-current={isActive(pathname, child.href) ? 'page' : undefined}
+                >
+                  {child.label}
+                </Link>
+              ))}
+            </details>
+          );
+        })}
         <Link href="/contact" className="ls-button ls-button-primary">Contact Us <Icon name="arrowRight" size={15} /></Link>
       </nav>
     </details>

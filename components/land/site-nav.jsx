@@ -13,20 +13,46 @@ export default function SiteNav({ links }) {
 
   return (
     <nav className="ls-nav" aria-label="Main navigation">
-      {links.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          aria-current={isActive(pathname, link.href) ? 'page' : undefined}
-        >
-          {link.label}
-          {link.submenu && (
-            <span className="ls-nav-submenu" aria-hidden="true">
+      {links.map((link) => {
+        if (!link.children) {
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={isActive(pathname, link.href) ? 'page' : undefined}
+            >
+              {link.label}
+            </Link>
+          );
+        }
+
+        return (
+          <div key={link.href} className="ls-nav-dropdown-wrapper">
+            <Link
+              href={link.href}
+              className="ls-nav-link ls-has-children"
+              aria-current={isActive(pathname, link.href) ? 'page' : undefined}
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              {link.label}
               <Icon name="chevronDown" size={10} />
-            </span>
-          )}
-        </Link>
-      ))}
+            </Link>
+            <div className="ls-nav-dropdown">
+              {link.children.map((child) => (
+                <Link
+                  key={child.href}
+                  href={child.href}
+                  className="ls-nav-dropdown-link"
+                  aria-current={isActive(pathname, child.href) ? 'page' : undefined}
+                >
+                  {child.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </nav>
   );
 }
