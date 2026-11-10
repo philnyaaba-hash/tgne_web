@@ -7,6 +7,7 @@ import Icon from './icons';
 
 export default function ServiceRequestGrid({ services }) {
   const [selectedService, setSelectedService] = useState('');
+  const [contactMethod, setContactMethod] = useState('form');
   const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
   const triggerRef = useRef(null);
@@ -56,9 +57,11 @@ export default function ServiceRequestGrid({ services }) {
         onCancel={(event) => {
           event.preventDefault();
           setSelectedService('');
+          setContactMethod('form');
         }}
         onClose={() => {
           setSelectedService('');
+          setContactMethod('form');
           window.requestAnimationFrame(() => triggerRef.current?.focus());
         }}
         onClick={(event) => {
@@ -78,14 +81,42 @@ export default function ServiceRequestGrid({ services }) {
             </div>
             <p className="ls-eyebrow"><span /> Service request</p>
             <h2 id="tgne-service-dialog-title">{selectedService}</h2>
-            <p id="tgne-service-dialog-intro">Share a few details and our team will follow up with a clear next step.</p>
+            <p id="tgne-service-dialog-intro">Choose how you would like to reach us.</p>
           </div>
           <button ref={closeButtonRef} type="button" className="tgne-service-dialog-close" aria-label="Close service request" onClick={() => setSelectedService('')}>
             <Icon name="close" size={19} />
           </button>
         </div>
-        {selectedService ? (
+        <div className="tgne-service-dialog-options">
+          <button type="button" className="tgne-service-option-button" onClick={() => setContactMethod('form')}>
+            <span className="tgne-option-icon"><Icon name="mail" size={16} /></span>
+            <span>Send a message</span>
+            <span className="tgne-option-desc">Fill out the form and we will reply</span>
+          </button>
+          <button type="button" className="tgne-service-option-button" onClick={() => setContactMethod('whatsapp')}>
+            <span className="tgne-option-icon"><Icon name="message" size={16} /></span>
+            <span>Message on WhatsApp</span>
+            <span className="tgne-option-desc">Chat directly with our team</span>
+          </button>
+        </div>
+        {contactMethod === 'form' && selectedService ? (
           <InquiryForm key={selectedService} defaultService={selectedService} heading="Your details" />
+        ) : null}
+        {contactMethod === 'whatsapp' && selectedService ? (
+          <div className="tgne-service-whatsapp">
+            <p className="ls-eyebrow"><span /> WhatsApp message</p>
+            <h3>Message us on WhatsApp</h3>
+            <p>Tap the button below to open WhatsApp with your service request pre-filled.</p>
+            <a
+              href={`https://wa.me/${LAND_SITE.phone.replace(/[^\d+]/g, '')}?text=${encodeURIComponent(`Hello TGNE Solutions, I am interested in: ${selectedService}. Please share more details.`)}`}
+              className="ls-button ls-button-primary"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Icon name="arrowUpRight" size={15} />
+              Open WhatsApp chat
+            </a>
+          </div>
         ) : null}
       </dialog>
     </>

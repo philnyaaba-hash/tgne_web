@@ -1,4 +1,4 @@
-const PATHS = {
+﻿const PATHS = {
   arrowRight: ['M5 12h14', 'M13 6l6 6-6 6'],
   arrowLeft: ['M19 12H5', 'M11 18l-6-6 6-6'],
   check: ['M20 6L9 17l-5-5'],
@@ -45,3 +45,4 @@ export default function Icon({ name, size = 18, className = '', strokeWidth = 1.
     </svg>
   );
 }
+
