@@ -65,9 +65,68 @@
 .ls-button-primary { background: var(--ls-deep); box-shadow: 0 8px 20px rgba(11, 37, 39, .16); }
 .ls-button-primary:hover { background: #1b5955; }
 .ls-eyebrow { letter-spacing: .19em; }
-.ls-mobile-menu { display: none; position: relative; }
-.ls-mobile-menu > summary { list-style: none; }
-.ls-mobile-menu > summary::-webkit-details-marker { display: none; }
+.ls-mobile-menu {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: transparent;
+}
+
+.ls-mobile-menu > summary {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 62;
+}
+
+.ls-mobile-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ls-mobile-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: min(360px, 100vw);
+  height: 100dvh;
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(0.25, 0, 0.2, 1);
+  z-index: 61;
+  display: flex;
+  flex-direction: column;
+  background: var(--ls-paper);
+  overflow-y: auto;
+  padding: 72px 24px 24px;
+  border-right: 1px solid var(--ls-line);
+  box-shadow: var(--ls-shadow);
+}
+
+.ls-mobile-menu[open] .ls-mobile-nav {
+  transform: translateX(0);
+}
+
+.ls-mobile-menu[open]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 37, 39, 0.45);
+  z-index: 59;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.ls-menu-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--ls-line);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ls-ink);
+}
 
 .tgne-hero {
   position: relative;
@@ -750,26 +809,8 @@
 }
 
 @media (max-width: 940px) {
-  .ls-mobile-menu { display: block; position: relative; }
   .ls-header-actions { margin-left: auto; }
   .ls-mobile-menu > summary { display: inline-flex; }
-  .ls-mobile-menu[open] .ls-mobile-nav {
-    position: absolute;
-    top: calc(100% + 12px);
-    right: 0;
-    z-index: 20;
-    display: flex;
-    width: min(360px, calc(100vw - 36px));
-    max-height: calc(100dvh - 90px);
-    overflow-y: auto;
-    flex-direction: column;
-    gap: 2px;
-    padding: 12px 20px 20px;
-    border: 1px solid var(--ls-line);
-    border-radius: 12px;
-    background: var(--ls-paper);
-    box-shadow: var(--ls-shadow);
-  }
   .ls-menu-toggle { cursor: pointer; }
   .ls-menu-toggle:focus-visible { outline: 2px solid var(--ls-green); outline-offset: 3px; }
   .ls-mobile-menu .ls-mobile-nav .ls-button { color: var(--ls-on-green); }

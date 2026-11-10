@@ -18,7 +18,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'ok' | 'error'>('idle');
+  const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
   const [quickLoading, setQuickLoading] = useState(false);
   const formRef = useRef(null);

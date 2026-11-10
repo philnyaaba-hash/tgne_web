@@ -14,7 +14,7 @@ export default function ResetPasswordForm({ token }) {
   const urlToken = searchParams?.get('token') || token;
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'ok' | 'error'>('idle');
+  const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
 
   useEffect(() => {

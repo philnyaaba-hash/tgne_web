@@ -9,7 +9,7 @@ const FORGOT_API = '/api/auth/forgot-password';
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'ok' | 'error'>('idle');
+  const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
 
   const handleSubmit = useCallback(
