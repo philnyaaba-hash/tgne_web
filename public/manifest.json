@@ -1,44 +1,55 @@
 {
-  "name": "Land Management System",
-  "short_name": "LandLedger",
-  "description": "A local-first land management system for plots, buyers, sales, receipts and payments.",
-  "start_url": "/dashboard",
+  "id": "/",
+  "name": "TGNE Solutions — Technology, design and ICT",
+  "short_name": "TGNE",
+  "description": "Web development, graphic design, print, ICT support, hosting and digital education consultancy from TGNE Solutions in Tema, Ghana.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#f3f6f3",
-  "theme_color": "#0b1f16",
   "orientation": "portrait-primary",
+  "lang": "en-GH",
+  "dir": "ltr",
+  "background_color": "#f7f6f1",
+  "theme_color": "#0b2527",
+  "categories": ["business", "design", "technology", "education"],
   "icons": [
     {
-      "src": "/assets/brand-logo.jpg",
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["business", "finance", "productivity"],
-  "screenshots": [],
   "shortcuts": [
     {
-      "name": "New Sale",
-      "short_name": "New Sale",
-      "description": "Start a new plot sale",
-      "url": "/dashboard#/sales",
-      "icons": [{ "src": "/assets/brand-logo.jpg", "sizes": "192x192" }]
+      "name": "Our services",
+      "short_name": "Services",
+      "description": "Explore TGNE technology, design, print and education services.",
+      "url": "/services"
     },
     {
-      "name": "Dashboard",
-      "short_name": "Dashboard",
-      "description": "View your business overview",
-      "url": "/dashboard#/dashboard",
-      "icons": [{ "src": "/assets/brand-logo.jpg", "sizes": "192x192" }]
+      "name": "Products and shop",
+      "short_name": "Shop",
+      "description": "Browse TGNE products and service packages.",
+      "url": "/shop"
     },
     {
-      "name": "Receipts",
-      "short_name": "Receipts",
-      "description": "Browse receipts and invoices",
-      "url": "/dashboard#/receipts",
-      "icons": [{ "src": "/assets/brand-logo.jpg", "sizes": "192x192" }]
+      "name": "Contact TGNE",
+      "short_name": "Contact",
+      "description": "Send an enquiry or find our office details.",
+      "url": "/contact"
     }
-  ],
-  "prefer_related_applications": false
+  ]
 }

@@ -6,6 +6,8 @@ import { LAND_SITE } from '../../lib/land-site';
 import { TGNE_SHOP_ITEMS } from '../../lib/tgne-shop';
 import { TGNE_SERVICES } from '../../lib/tgne-services';
 import { TGNE_GALLERY_ITEMS } from '../../lib/tgne-gallery';
+import { getFeaturedCaseStudies } from '../../lib/tgne-case-studies';
+import { formatPostDate, getLatestPosts } from '../../lib/tgne-blog';
 import { createPageMetadata } from '../../lib/site-metadata';
 
 export const metadata = createPageMetadata({
@@ -92,7 +94,7 @@ export default function TgnesolutionsHomePage() {
         <div className="ls-container">
           <div className="tgne-offerings-heading">
             <div>
-              <p className="ls-eyebrow"><span /> Products & services</p>
+              <p className="ls-eyebrow"><span /> What we offer</p>
               <h2 id="tgne-offerings-title">A partner for your next step.</h2>
               <p>Explore the ideas, tools and services that help your organisation move forward.</p>
             </div>
@@ -122,7 +124,7 @@ export default function TgnesolutionsHomePage() {
           </div>
           <div className="tgne-service-grid">
             {TGNE_SERVICES.map((service, index) => (
-              <Link className="tgne-service-card" href="/services" key={service.title}>
+              <Link className="tgne-service-card" href={`/services#${service.id}`} key={service.title}>
                 <span className="tgne-service-top"><span>0{index + 1}</span><Icon name={service.icon} size={20} /></span>
                 <h3>{service.title}</h3>
                 <p>{service.copy}</p>
@@ -137,19 +139,19 @@ export default function TgnesolutionsHomePage() {
         <div className="ls-container">
           <div className="tgne-shop-heading">
             <div>
-              <p className="ls-eyebrow"><span /> Products & services</p>
-              <h2>Explore the TGNE catalogue.</h2>
+              <p className="ls-eyebrow"><span /> Shop essentials</p>
+              <h2>Start with the right tools.</h2>
             </div>
             <Link href="/shop" className="ls-text-link">Visit the shop <Icon name="arrowRight" size={15} /></Link>
           </div>
           <div className="tgne-shop-grid">
             {TGNE_SHOP_ITEMS.slice(0, 4).map((item) => (
-              <Link className="tgne-shop-card" href="/shop" key={item.id}>
+              <Link className="tgne-shop-card" href={`/shop#product-${item.id}`} key={item.id}>
                 <span className="tgne-shop-card-icon"><Icon name={item.icon} size={19} /></span>
                 <small>{item.category}</small>
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
-                <span>Explore catalogue <Icon name="arrowUpRight" size={14} /></span>
+                <span>View offering <Icon name="arrowUpRight" size={14} /></span>
               </Link>
             ))}
           </div>
@@ -198,6 +200,37 @@ export default function TgnesolutionsHomePage() {
         </div>
       </section>
 
+      <section className="tgne-work" aria-labelledby="tgne-work-title">
+        <div className="ls-container">
+          <div className="ls-section-head tgne-section-head">
+            <div>
+              <p className="ls-eyebrow"><span /> Case studies</p>
+              <h2 id="tgne-work-title">Proof, not promises.</h2>
+            </div>
+            <Link href="/case-studies" className="ls-text-link">All case studies <Icon name="arrowRight" size={15} /></Link>
+          </div>
+          <div className="tgne-work-grid">
+            {getFeaturedCaseStudies(3).map((study) => (
+              <Link className="tgne-work-card" href={`/case-studies/${study.slug}`} key={study.slug}>
+                <span className="tgne-work-media">
+                  <Image src={study.cover.src} alt={study.cover.alt} fill sizes="(max-width: 600px) 100vw, (max-width: 900px) 220px, 380px" />
+                  <span className="tgne-work-sector">{study.sector}</span>
+                </span>
+                <span className="tgne-work-body">
+                  <small>{study.client} · {study.year}</small>
+                  <strong>{study.title}</strong>
+                  <span className="tgne-work-metric">
+                    <b>{study.metrics[0].value}</b>
+                    <span>{study.metrics[0].label}</span>
+                  </span>
+                  <span className="tgne-work-link">Read the case study <Icon name="arrowUpRight" size={14} /></span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="tgne-contact-band">
         <div className="ls-container tgne-contact-band-inner">
           <div>
@@ -208,6 +241,40 @@ export default function TgnesolutionsHomePage() {
           <div className="tgne-contact-band-actions">
             <Link href="/contact" className="ls-button ls-button-light">Talk to TGNE <Icon name="arrowRight" size={15} /></Link>
             <a href="https://wa.me/233558122767" className="tgne-contact-number">WhatsApp +233 55 812 2767</a>
+          </div>
+        </div>
+      </section>
+
+      <section className="tgne-journal" aria-labelledby="tgne-journal-title">
+        <div className="ls-container tgne-journal-layout">
+          <div className="tgne-journal-copy">
+            <p className="ls-eyebrow"><span /> The TGNE journal</p>
+            <h2 id="tgne-journal-title">Notes from the <em>workshop.</em></h2>
+            <p>
+              What we learn building websites, running print jobs, setting up networks and teaching ICT —
+              written down so it is useful to someone else.
+            </p>
+            <Link href="/blog" className="ls-button ls-button-primary">Visit the blog <Icon name="arrowRight" size={15} /></Link>
+          </div>
+          <div className="tgne-journal-list">
+            {getLatestPosts(3).map((post) => (
+              <Link className="tgne-journal-item" href={`/blog/${post.slug}`} key={post.slug}>
+                <span className="tgne-journal-thumb">
+                  <Image src={post.cover.src} alt={post.cover.alt} fill sizes="(max-width: 600px) 78px, 104px" />
+                </span>
+                <span className="tgne-journal-copy-body">
+                  <span className="tgne-journal-meta">
+                    <small>{post.category}</small>
+                    <i aria-hidden="true" />
+                    <time dateTime={post.date}>{formatPostDate(post.date)}</time>
+                    <i aria-hidden="true" />
+                    {post.readingMinutes} min read
+                  </span>
+                  <strong>{post.title}</strong>
+                </span>
+                <span className="tgne-journal-arrow" aria-hidden="true"><Icon name="arrowUpRight" size={14} /></span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
@@ -230,7 +297,7 @@ export default function TgnesolutionsHomePage() {
               </a>
             </div>
           </div>
-          <a className="tgne-review-card" href={LAND_SITE.googleReviewsUrl} target="_blank" rel="noreferrer" aria-label="Open TGNE Solutions on Google Maps">
+          <a className="tgne-review-card" href={LAND_SITE.googleReviewsUrl} target="_blank" rel="noreferrer">
             <span className="tgne-review-card-top">
               <span className="tgne-google-mark" aria-hidden="true">G</span>
               <span><strong>Google Reviews</strong><small>Feedback from our community</small></span>

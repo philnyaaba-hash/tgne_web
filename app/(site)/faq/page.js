@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Icon from '../../../components/land/icons';
+import { FaqStructuredData } from '../../../components/land/structured-data';
 import { createPageMetadata } from '../../../lib/site-metadata';
 
 export const metadata = createPageMetadata({
@@ -46,6 +47,7 @@ const QUESTIONS = [
 export default function FaqPage() {
   return (
     <>
+      <FaqStructuredData questions={QUESTIONS} />
       <section className="ls-page-head ls-page-head-small">
         <div className="ls-container">
           <p className="ls-eyebrow">Straight answers</p>

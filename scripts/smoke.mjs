@@ -7,6 +7,10 @@ const CHECKS = [
   { path: '/api/health', status: 200, json: (body) => body.status === 'ok' },
   { path: '/', status: 200, html: 'TGNE Solutions' },
   { path: '/shop', status: 200, html: 'TGNE' },
+  { path: '/case-studies', status: 200, html: 'Case studies' },
+  { path: '/case-studies/client-portal-and-office-workspace', status: 200, html: 'Engagement facts' },
+  { path: '/blog', status: 200, html: 'Notes from the' },
+  { path: '/blog/what-a-small-business-website-in-ghana-needs', status: 200, html: 'On this page' },
   { path: '/dashboard', status: 200, html: 'Workspace' },
   { path: '/api/auth/session', status: 200, json: (body) => 'user' in body },
   { path: '/api/assistant', status: 200, json: (body) => 'authenticated' in body }

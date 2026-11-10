@@ -19,18 +19,22 @@ export default function SiteFooter() {
             <h3>Explore</h3>
             <Link href="/services">Services</Link>
             <Link href="/shop">Products & shop</Link>
+            <Link href="/case-studies">Case studies</Link>
+            <Link href="/blog">Blog</Link>
+            <Link href="/gallery">Gallery</Link>
             <Link href="/about">About us</Link>
             <Link href="/how-it-works">How we work</Link>
             <Link href="/faq">Questions</Link>
+            <Link href="/accessibility">Accessibility</Link>
             <Link href="/contact">Contact</Link>
           </div>
 
           <div>
             <h3>Solutions</h3>
-            <Link href="/contact">Website design</Link>
-            <Link href="/contact">Graphic branding</Link>
-            <Link href="/contact">ICT support</Link>
-            <Link href="/contact">Training & consultancy</Link>
+            <Link href="/services#web-app-development">Website design</Link>
+            <Link href="/services#graphic-design-branding">Graphic branding</Link>
+            <Link href="/services#ict-solutions-hardware">ICT support</Link>
+            <Link href="/services#ict-education-consultancy">Training & consultancy</Link>
           </div>
 
           <div>
@@ -75,9 +79,13 @@ export default function SiteFooter() {
           <div>
             <Link href="/services">Services</Link>
             <Link href="/shop">Shop</Link>
+            <Link href="/case-studies">Case studies</Link>
+            <Link href="/blog">Blog</Link>
             <Link href="/about">About</Link>
             <Link href="/contact">Contact</Link>
             <Link href="/faq">FAQ</Link>
+            <Link href="/legal">Legal & privacy</Link>
+            <Link href="/accessibility">Accessibility</Link>
           </div>
         </div>
       </div>

@@ -83,7 +83,6 @@ export default function GalleryBrowser({ items }) {
               className="tgne-gallery-card"
               key={item.src}
               onClick={() => setActiveIndex(index)}
-              aria-label={`View ${item.title}, ${item.category}`}
             >
               <span className="tgne-gallery-image">
                 <Image src={item.src} alt="" fill sizes="(max-width: 640px) 100vw, (max-width: 1000px) 50vw, 33vw" />

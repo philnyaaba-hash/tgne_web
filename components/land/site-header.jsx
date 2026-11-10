@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Icon from './icons';
 import MobileMenu from './mobile-menu';
+import SiteNav from './site-nav';
 import { LAND_SITE } from '../../lib/land-site';
 
 const LINKS = [
@@ -10,6 +11,8 @@ const LINKS = [
   { href: '/services', label: 'Our Services' },
   { href: '/shop', label: 'Products' },
   { href: '/gallery', label: 'Gallery' },
+  { href: '/case-studies', label: 'Case Studies' },
+  { href: '/blog', label: 'Blog' },
   { href: '/contact', label: 'Contact Us' },
   { href: '/client', label: 'Client area' }
 ];
@@ -18,7 +21,7 @@ export default function SiteHeader() {
   return (
     <header className="ls-header">
       <div className="ls-container ls-header-inner">
-        <Link href="/" className="ls-brand" aria-label="TGNE Solutions home">
+        <Link href="/" className="ls-brand">
           <span className="ls-brand-mark tgne-brand-mark">
             <Image src="/assets/tgne-logo.png" alt="TGNE Solutions" width={58} height={58} loading="eager" unoptimized />
           </span>
@@ -28,9 +31,7 @@ export default function SiteHeader() {
           </span>
         </Link>
 
-        <nav className="ls-nav" aria-label="Main navigation">
-          {LINKS.map((link) => <Link key={link.href} href={link.href}>{link.label}</Link>)}
-        </nav>
+        <SiteNav links={LINKS} />
 
         <div className="ls-header-actions">
           <a href={'tel:' + LAND_SITE.phone.replace(/[^\d+]/g, '')} className="ls-button ls-button-primary ls-header-cta">

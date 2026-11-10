@@ -13,7 +13,7 @@ export default function HeroSlider({ slides }) {
     if (paused || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
     const timer = window.setInterval(() => {
       setActiveIndex((index) => (index + 1) % slides.length);
-    }, 2000);
+    }, 6500);
     return () => window.clearInterval(timer);
   }, [paused, slides.length]);
 

@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import FormspreeServiceForm from './formspree-service-form';
+import InquiryForm from './inquiry-form';
 import Icon from './icons';
 
 export default function ServiceRequestGrid({ services }) {
   const [selectedService, setSelectedService] = useState('');
   const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
+  const triggerRef = useRef(null);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -26,7 +27,7 @@ export default function ServiceRequestGrid({ services }) {
     <>
       <div className="tgne-service-grid tgne-service-grid-page">
         {services.map((service, index) => (
-          <article className="tgne-service-card" key={service.title}>
+          <article className="tgne-service-card" id={service.id} key={service.title}>
             <span className="tgne-service-top"><span>0{index + 1}</span><Icon name={service.icon} size={20} /></span>
             <h2>{service.title}</h2>
             <p>{service.copy}</p>
@@ -35,7 +36,10 @@ export default function ServiceRequestGrid({ services }) {
               className="tgne-service-link"
               aria-haspopup="dialog"
               aria-controls="tgne-service-request-dialog"
-              onClick={() => setSelectedService(service.title)}
+              onClick={(event) => {
+                triggerRef.current = event.currentTarget;
+                setSelectedService(service.title);
+              }}
             >
               Request this service <Icon name="arrowRight" size={14} />
             </button>
@@ -53,7 +57,10 @@ export default function ServiceRequestGrid({ services }) {
           event.preventDefault();
           setSelectedService('');
         }}
-        onClose={() => setSelectedService('')}
+        onClose={() => {
+          setSelectedService('');
+          window.requestAnimationFrame(() => triggerRef.current?.focus());
+        }}
         onClick={(event) => {
           if (event.target === dialogRef.current) setSelectedService('');
         }}
@@ -78,7 +85,7 @@ export default function ServiceRequestGrid({ services }) {
           </button>
         </div>
         {selectedService ? (
-          <FormspreeServiceForm key={selectedService} defaultService={selectedService} />
+          <InquiryForm key={selectedService} defaultService={selectedService} heading="Your details" />
         ) : null}
       </dialog>
     </>

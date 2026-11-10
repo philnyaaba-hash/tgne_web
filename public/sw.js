@@ -1,24 +1,19 @@
-/* LandLedger — offline shell for the staff dashboard only.
-   The public storefront is never cached or served offline: it stays live. */
-const VERSION = 'landledger-next-v14';
+/* TGNE Solutions — offline shell for the staff dashboard only.
+   The public marketing site is never cached or served offline: it stays live. */
+const VERSION = 'tgne-next-v15';
 const SHELL_CACHE = VERSION + '-shell';
 const RUNTIME_CACHE = VERSION + '-runtime';
 const OFFLINE_PAGE = '/offline';
 const DASHBOARD = '/dashboard';
 
-const LEGACY_SCRIPTS = [
-  'store', 'notifications', 'auth', 'core', 'finance-core', 'finance-app',
-  'views-dashboard', 'views-land', 'views-sales', 'views-buyers',
-  'views-accounting', 'views-finance', 'staff', 'operations', 'modals',
-  'records', 'accounting', 'client-vault', 'complaints', 'events', 'command-palette'
-];
-
+// The dashboard loads legacy scripts on demand. They are cached after first
+// use by staleWhileRevalidate; precaching all of them slowed every install.
 const BASE_ASSETS = [
   DASHBOARD,
   OFFLINE_PAGE,
   '/manifest.json',
-  '/assets/brand-logo.jpg',
-  ...LEGACY_SCRIPTS.map((name) => '/legacy/' + name + '.js')
+  '/icons/icon-192.png',
+  '/assets/brand-logo.jpg'
 ];
 
 async function addAll(cache, urls) {

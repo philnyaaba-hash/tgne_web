@@ -134,6 +134,23 @@ test('inquiry validation checks type and message length', async () => {
   assert.ok(bad.errors.type);
 });
 
+test('inquiry validation rejects oversized fields instead of silently truncating', async () => {
+  const { validateInquiry } = await load();
+  const result = validateInquiry({
+    name: 'A'.repeat(121),
+    email: `${'a'.repeat(195)}@example.com`,
+    phone: '1'.repeat(41),
+    message: 'M'.repeat(2001),
+    type: 'GENERAL'
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.name, /120/);
+  assert.match(result.errors.email, /200/);
+  assert.match(result.errors.phone, /40/);
+  assert.match(result.errors.message, /2,000/);
+});
+
 test('listing validation accepts a complete record', async () => {
   const { validateListing } = await load();
   const result = validateListing(listingInput({ price: '250000.4', sizeAcres: '0.5' }));

@@ -13,9 +13,12 @@ export const metadata = {
   applicationName: LAND_SITE.name,
   manifest: '/manifest.json',
   icons: {
-    icon: [{ url: '/assets/tgne-logo.png', sizes: '225x225', type: 'image/png' }],
-    shortcut: '/assets/tgne-logo.png',
-    apple: [{ url: '/assets/tgne-logo.png', sizes: '225x225', type: 'image/png' }]
+    icon: [
+      { url: '/icons/icon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icons/icon-16.png', sizes: '16x16', type: 'image/png' }
+    ],
+    shortcut: '/icons/icon-32.png',
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }]
   },
   openGraph: {
     title: 'TGNE Solutions — Technology, design and ICT support in Ghana',
@@ -44,7 +47,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={ui.variable}>
-      <body className="auth-locked" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <OfflineBanner />
         {children}
       </body>

@@ -60,7 +60,7 @@ export default function LegalPage() {
           </p>
           <ul>
             <li>We use your details only to answer questions, prepare a quote, or manage agreed project communications.</li>
-            <li>Service request submissions are processed by Formspree so they can be delivered to our team.</li>
+            <li>Enquiry submissions are processed through our secure enquiry system so they can be delivered to our team.</li>
             <li>We share information with people working directly on your project or service providers where required to handle your enquiry.</li>
             <li>You may ask us to correct or clarify the details we hold about you.</li>
           </ul>
@@ -78,8 +78,8 @@ export default function LegalPage() {
         <section>
           <h2>6. Contact</h2>
           <p>
-            Questions about these terms or a business enquiry: <a href={'tel:' + LAND_SITE.phone.replace(/[^\d+]/g, '')}>{LAND_SITE.phone}</a>.
-            Office hours: {LAND_SITE.hours}.
+            Questions about these terms or a business enquiry: <a href={'mailto:' + LAND_SITE.email}>{LAND_SITE.email}</a> or{' '}
+            <a href={'tel:' + LAND_SITE.phone.replace(/[^\d+]/g, '')}>{LAND_SITE.phone}</a>. Office hours: {LAND_SITE.hours}.
           </p>
         </section>
 
