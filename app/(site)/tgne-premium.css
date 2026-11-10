@@ -546,7 +546,17 @@
   from { opacity: 1; transform: translateY(22px); filter: blur(3px); }
   to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
-.tgne-contact-band { padding: 76px 0; color: #f8f6ee; background: linear-gradient(110deg, #123d3b, #0b2527); }
+.tgne-contact-band {
+  padding: 76px 0;
+  color: #f8f6ee;
+  min-height: 80vh;
+  background:
+    linear-gradient(110deg, rgba(18, 61, 59, 0.85), rgba(11, 37, 39, 0.85)),
+    url('https://res.cloudinary.com/z43ds8bn/image/upload/v1794285586/Smiling_Tone_Solutions_Brand_Ambassador.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 .tgne-contact-band-inner { display: flex; align-items: flex-end; justify-content: space-between; gap: 35px; }
 .tgne-contact-band .ls-eyebrow { color: #d4bc93; }
 .tgne-contact-band h2 { color: #f8f6ee; font-size: clamp(2.3rem, 4vw, 3.8rem); }
