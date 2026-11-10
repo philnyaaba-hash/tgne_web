@@ -5,6 +5,7 @@ import WhatsAppFloat from '../../components/land/whatsapp-float';
 import { OrganizationStructuredData } from '../../components/land/structured-data';
 import { LAND_SITE } from '../../lib/land-site';
 import { siteMetadataBase, tgneShareImage } from '../../lib/site-metadata';
+import { currentUser } from '../../lib/office-auth';
 import './land.css';
 import './tgne-premium.css';
 import './editorial.css';
@@ -45,12 +46,13 @@ export const metadata = {
   robots: { index: true, follow: true }
 };
 
-export default function LandLayout({ children }) {
+export default async function LandLayout({ children }) {
+  const user = await currentUser();
   return (
     <div className="land-site">
       <OrganizationStructuredData />
       <a className="ls-skip" href="#land-main">Skip to content</a>
-      <SiteHeader />
+      <SiteHeader user={user} />
       <main id="land-main" tabIndex={-1}>{children}</main>
       <SiteFooter />
       <ScrollControls />

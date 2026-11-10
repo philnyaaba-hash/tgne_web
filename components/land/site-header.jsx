@@ -16,7 +16,7 @@ const LINKS = [
   { href: '/contact', label: 'Contact Us' }
 ];
 
-export default function SiteHeader() {
+export default function SiteHeader({ user }) {
   return (
     <header className="ls-header">
       <div className="ls-container ls-header-inner">
@@ -30,14 +30,14 @@ export default function SiteHeader() {
           </span>
         </Link>
 
-        <SiteNav links={LINKS} />
+        <SiteNav links={LINKS} user={user} />
 
         <div className="ls-header-actions">
           <a href={'tel:' + LAND_SITE.phone.replace(/[^\d+]/g, '')} className="ls-button ls-button-primary ls-header-cta">
             Call Us
             <Icon name="arrowRight" size={15} />
           </a>
-          <MobileMenu links={LINKS} />
+          <MobileMenu links={LINKS} user={user} />
         </div>
       </div>
     </header>

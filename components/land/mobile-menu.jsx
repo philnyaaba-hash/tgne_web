@@ -8,8 +8,35 @@ function isActive(pathname, href) {
   return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export default function MobileMenu({ links }) {
+const STAFF_ROLES = ['SUPER_ADMIN', 'OFFICE_MANAGER', 'ACCOUNTANT', 'SURVEYOR', 'RECEPTIONIST'];
+
+function isStaff(user) {
+  return user && user.roles.some((r) => STAFF_ROLES.includes(r.key));
+}
+
+export default function MobileMenu({ links, user }) {
   const pathname = usePathname();
+  const isStaffUser = isStaff(user);
+
+  const navLinks = [
+    { href: '/', label: 'Home', children: [{ href: '/about', label: 'About Us' }] },
+    { href: '/services', label: 'Our Services' },
+    { href: '/shop', label: 'Products' },
+    { href: '/gallery', label: 'Gallery' },
+    { href: '/case-studies', label: 'Case Studies' },
+    { href: '/blog', label: 'Blog' },
+    { href: '/contact', label: 'Contact Us' }
+  ];
+
+  if (user) {
+    if (isStaffUser) {
+      navLinks.push({ href: '/dashboard', label: 'Dashboard' });
+    } else {
+      navLinks.push({ href: '/client', label: 'Client Portal' });
+    }
+  } else {
+    navLinks.push({ href: '/login', label: 'Client Login' });
+  }
 
   return (
     <details
@@ -22,7 +49,7 @@ export default function MobileMenu({ links }) {
         <Icon name="menu" size={22} />
       </summary>
       <nav id="land-mobile-nav" className="ls-mobile-nav" aria-label="Mobile navigation">
-        {links.map((link) => {
+        {navLinks.map((link) => {
           if (!link.children) {
             return (
               <Link

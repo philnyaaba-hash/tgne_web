@@ -89,14 +89,27 @@ export default function LoginForm() {
         }
 
         setStatus('ok');
-        const next = isSafeRedirectPath(DEFAULT_REDIRECT) ? DEFAULT_REDIRECT : '/client';
-        router.replace(next);
+        try {
+          const sessionRes = await fetch(SESSION_API, {
+            credentials: 'same-origin',
+            headers: { 'cache-control': 'no-store' }
+          });
+          const sessionData = await sessionRes.json().catch(() => ({}));
+          const userRoles = sessionData.user?.roles || [];
+          const STAFF_ROLES = ['SUPER_ADMIN', 'OFFICE_MANAGER', 'ACCOUNTANT', 'SURVEYOR', 'RECEPTIONIST'];
+          const isStaff = userRoles.some((r) => STAFF_ROLES.includes(r.key));
+          const next = isStaff ? '/dashboard' : '/client';
+          router.replace(next);
+        } catch {
+          // Fall back to default redirect if session fetch fails
+          router.replace(DEFAULT_REDIRECT);
+        }
       } catch {
         setStatus('error');
         setError('We could not reach the sign-in service. Check your connection and try again.');
       }
     },
-    [email, password, remember, router]
+    [email, password, remember, router, SESSION_API, DEFAULT_REDIRECT]
   );
 
   // Show the success state briefly, then redirect (router.replace already called).

@@ -9,6 +9,7 @@ export const metadata = {
 };
 
 const SESSION_COOKIE = 'landledger.office.session';
+const STAFF_ROLES = ['SUPER_ADMIN', 'OFFICE_MANAGER', 'ACCOUNTANT', 'SURVEYOR', 'RECEPTIONIST'];
 
 async function getCurrentUser() {
   const cookieStore = await cookies();
@@ -18,7 +19,13 @@ async function getCurrentUser() {
     const secret = process.env.AUTH_SECRET || 'landledger-local-demo-secret-development-only';
     const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), { algorithms: ['HS256'] });
     if (payload.purpose !== 'office-session' || typeof payload.sub !== 'string') return null;
-    return { id: payload.sub, email: payload.email, name: payload.name, demo: payload.demo === true };
+    return {
+      id: payload.sub,
+      email: payload.email,
+      name: payload.name,
+      roles: payload.roles || [],
+      demo: payload.demo === true
+    };
   } catch {
     return null;
   }
@@ -29,6 +36,9 @@ export default async function ClientPage() {
   if (!user) {
     redirect('/login');
   }
-
+  const isStaff = user.roles.some((r) => STAFF_ROLES.includes(r.key));
+  if (isStaff) {
+    redirect('/dashboard');
+  }
   return <ClientPortal mode="client" user={user} />;
 }
