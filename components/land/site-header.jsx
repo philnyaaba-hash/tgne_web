@@ -13,7 +13,7 @@ const LINKS = [
   { href: '/case-studies', label: 'Case Studies' },
   { href: '/blog', label: 'Blog' },
   { href: '/contact', label: 'Contact Us' },
-  { href: '/client', label: 'Client area' }
+  { href: '/login', label: 'Client area' }
 ];
 
 export default function SiteHeader() {
