@@ -1,6 +1,6 @@
 # TGNE Solutions — 100 improvement plan
 
-Status: 92 done · 2 partial · 6 planned.
+Status: 91 done ? 2 partial ? 7 planned.
 
 This plan turns the public-site audit into small, verifiable changes. Work is
 shipped in priority waves so the site remains usable between batches.

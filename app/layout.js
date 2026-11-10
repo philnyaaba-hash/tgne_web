@@ -47,7 +47,7 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={ui.variable}>
-      <body suppressHydrationWarning>
+      <body className="auth-locked" suppressHydrationWarning>
         <OfflineBanner />
         {children}
       </body>
