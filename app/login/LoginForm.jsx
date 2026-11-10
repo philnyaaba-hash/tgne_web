@@ -141,8 +141,8 @@ export default function LoginForm() {
         </div>
 
         <div className={styles.loginHead}>
-          <h1>Welcome back</h1>
-          <p>Sign in to your TGNE workspace to manage service requests, orders, invoices and team collaboration.</p>
+          <h1>Client Login</h1>
+          <p>Sign in to your TGNE client portal to manage service requests, orders, invoices and team collaboration.</p>
         </div>
 
         {error ? (

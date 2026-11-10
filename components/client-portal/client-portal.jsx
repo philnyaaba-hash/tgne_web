@@ -157,8 +157,9 @@ function OrderTable({ orders, onTrack, admin = false, onStatusChange }) {
   );
 }
 
-export default function ClientPortal({ mode }) {
+export default function ClientPortal({ mode, user }) {
   const isAdmin = mode === 'admin';
+  const clientName = user?.name || 'Valued Client';
   const [orders, setOrders] = useState(DEMO_ORDERS);
   const [page, setPage] = useState('overview');
   const [filter, setFilter] = useState('All');
@@ -292,7 +293,7 @@ export default function ClientPortal({ mode }) {
         <section className={styles.welcome}>
           <div className={styles.welcomeCopy}>
             <span className={styles.welcomeEyebrow}>Corporate client portal</span>
-            <h2>Welcome back, Volta Foods</h2>
+            <h2>Welcome back, {clientName}</h2>
             <p>Keep track of your TGNE work, review quotes and place your next service request.</p>
             <button type="button" className={styles.primaryButton} onClick={() => setPage('new-order')}><Icon name="plus" size={17} /> Place a new order</button>
           </div>
