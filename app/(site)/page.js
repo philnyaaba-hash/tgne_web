@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Icon from '../../components/land/icons';
 import HeroSlider from '../../components/tgne/hero-slider';
+import HeroBackgroundVideo from '../../components/tgne/hero-background-video';
 import { LAND_SITE } from '../../lib/land-site';
 import { TGNE_SHOP_ITEMS } from '../../lib/tgne-shop';
 import { TGNE_SERVICES } from '../../lib/tgne-services';
@@ -65,6 +66,7 @@ export default function TgnesolutionsHomePage() {
   return (
     <>
       <section className="tgne-hero">
+        <HeroBackgroundVideo />
         <div className="ls-container tgne-hero-grid">
           <div className="tgne-hero-copy">
             <p className="ls-eyebrow"><span /> Technology · Design · Digital growth</p>

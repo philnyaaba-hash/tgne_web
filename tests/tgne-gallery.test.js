@@ -31,22 +31,26 @@ test('homepage slideshow includes every portfolio image', async () => {
   }
 });
 
-test('homepage slideshow contains only the four configured hero images', async () => {
+test('homepage slideshow contains optimized hero images and all configured portraits', async () => {
   const { TGNE_HOME_SLIDES } = await load();
   const expectedSources = [
-    'https://res.cloudinary.com/z43ds8bn/image/upload/v1794397377/Smiling_Tone_Solutions_Brand_Ambassador.png',
-    'https://res.cloudinary.com/z43ds8bn/image/upload/v1794397790/TGNE_Solutions_Courier_Parcel_Delivery_Scene.png',
-    'https://res.cloudinary.com/ea91sdts/image/upload/v1794174711/TGNE-Creative-Business-Design-Promotion.jpg',
-    'https://res.cloudinary.com/ea91sdts/image/upload/v1794174770/TGNE-Software-Development-Branding.jpg'
+    'https://res.cloudinary.com/z43ds8bn/image/upload/f_auto,q_auto,w_1600,c_limit/v1794397377/Smiling_Tone_Solutions_Brand_Ambassador.png',
+    'https://res.cloudinary.com/z43ds8bn/image/upload/f_auto,q_auto,w_1600,c_limit/v1794397790/TGNE_Solutions_Courier_Parcel_Delivery_Scene.png',
+    'https://res.cloudinary.com/ea91sdts/image/upload/f_auto,q_auto,w_1600,c_limit/v1794174711/TGNE-Creative-Business-Design-Promotion.jpg',
+    'https://res.cloudinary.com/ea91sdts/image/upload/f_auto,q_auto,w_1600,c_limit/v1794174770/TGNE-Software-Development-Branding.jpg',
+    'https://res.cloudinary.com/z43ds8bn/image/upload/f_auto,q_auto,w_1600,c_limit/v1794425801/Confident_Professional_in_Green_Polo.png',
+    'https://res.cloudinary.com/z43ds8bn/image/upload/f_auto,q_auto,w_1600,c_limit/v1794425505/Smiling_Woman_Showcasing_Tech_Logo.png',
+    'https://res.cloudinary.com/z43ds8bn/image/upload/f_auto,q_auto,w_1600,c_limit/v1794425506/TGNE_Solutions_Brand_Portrait.png'
   ];
 
-  assert.equal(TGNE_HOME_SLIDES.length, 4);
+  assert.equal(TGNE_HOME_SLIDES.length, 7);
   assert.deepEqual(TGNE_HOME_SLIDES.map((slide) => slide.src), expectedSources);
   assert.equal(TGNE_HOME_SLIDES[0].category, "Let's work together");
   assert.equal(TGNE_HOME_SLIDES[0].title, "Ready to grow your business? Let's talk.");
   for (const slide of TGNE_HOME_SLIDES) {
     assert.ok(slide.title);
     assert.ok(slide.category);
+    assert.match(slide.src, /\/upload\/f_auto,q_auto,w_1600,c_limit\//);
   }
 });
 

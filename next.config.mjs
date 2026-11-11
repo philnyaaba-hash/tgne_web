@@ -16,7 +16,7 @@ const contentSecurityPolicy = [
   "frame-src 'self' https://www.google.com https://maps.google.com",
   "object-src 'none'",
   "img-src 'self' data: blob: https://res.cloudinary.com",
-  "media-src 'self' blob:",
+  "media-src 'self' blob: https://res.cloudinary.com",
   "font-src 'self' data:",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
