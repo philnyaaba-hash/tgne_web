@@ -89,8 +89,12 @@ export async function POST(request) {
       where: { email },
       include: { roles: { include: { role: { select: { key: true } } } } }
     }));
-  } catch {
-    user = null;
+  } catch (error) {
+    console.error('Login user lookup failed.', error?.name || 'Unknown error');
+    return NextResponse.json(
+      { error: 'Sign-in service is temporarily unavailable. Try again shortly.' },
+      { status: 503, headers: { 'cache-control': 'no-store' } }
+    );
   }
   const now = new Date();
   if (!user) {
