@@ -238,15 +238,8 @@ export default function LoginForm() {
             </button>
           </div>
 
-          <div className={styles.loginForgot}>
-            <a href="/forgot-password">Forgot password?</a>
-          </div>
         </form>
 
-        <div className={styles.loginFooter}>
-          New to TGNE?{' '}
-          <a href="/contact">Request workspace access</a>
-        </div>
         <p className={styles.loginDisclaimer}>
           TGNE Solutions · Technology, design and ICT support in Tema, Ghana.
         </p>

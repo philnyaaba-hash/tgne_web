@@ -27,6 +27,12 @@ commit `.env` or paste secrets into the repository.
 Run `npm run check:env` to see which environment variables are present without
 printing their values.
 
+The demo role accounts are test fixtures only. Configure unique passwords of
+at least 12 characters with the `TEST_<ROLE>_PASSWORD` variables in `.env`.
+`npm run seed:demo` is blocked in production and requires `ALLOW_DEMO_SEED=1`;
+remote test databases also require `ALLOW_REMOTE_DEMO_SEED=1`. Never use the
+demo seeder against production data.
+
 ## Scripts
 
 | Command | Purpose |
@@ -34,6 +40,7 @@ printing their values.
 | `npm run dev` | Start the local Next.js server. |
 | `npm run build` | Generate Prisma client and create a production build. |
 | `npm test` | Run the Node unit tests. |
+| `npm run check:secrets` | Reject tracked local environment files and hardcoded demo passwords. |
 | `npm run test:e2e` | Run all Playwright checks. |
 | `npm run test:public` | Public-page rendering and metadata checks. |
 | `npm run test:a11y` | Axe accessibility scans (report-only unless `A11Y_STRICT=1`). |

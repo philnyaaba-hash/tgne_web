@@ -18,6 +18,10 @@ npm run check:env
 `check:env` prints missing required variables and warns about recommended ones.
 It never prints secret values.
 
+The demo seeder requires explicit opt-in, unique test-only passwords, and a
+non-production target. Remote test databases require a second explicit opt-in.
+Never use demo accounts or the demo seeder with production data.
+
 ## Commands
 
 | Command | What it does |
@@ -30,6 +34,7 @@ It never prints secret values.
 | `npm run test:a11y:strict` | Fails on serious/critical axe findings |
 | `npm run audit:lighthouse` | Lighthouse report for a running site |
 | `npm run check:env` | Validate required environment variables |
+| `npm run check:secrets` | Reject tracked local environment files and hardcoded demo passwords |
 | `npm run smoke` | Existing custom smoke script |
 
 ## Playwright

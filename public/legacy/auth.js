@@ -214,10 +214,7 @@ const Auth = (function () {
           '</div>' +
         '</div>' +
         '<p class="auth-caps" id="loginCaps" hidden>' + icon('info', 13) + '<span>Caps Lock is on</span></p>' +
-        '<div class="auth-row">' +
-          '<label class="auth-check"><input type="checkbox" id="loginRemember"><span>Remember my email</span></label>' +
-          '<button type="button" class="auth-text-btn" id="loginForgot">Forgot password?</button>' +
-        '</div>' +
+        '<label class="auth-check"><input type="checkbox" id="loginRemember"><span>Remember my email</span></label>' +
         '<p class="login-error" id="loginError" role="alert" hidden></p>' +
         '<button type="submit" class="auth-submit" id="loginSubmit">' +
           '<span class="auth-submit-label">Sign in</span>' + icon('arrowRight', 16) +
@@ -225,25 +222,7 @@ const Auth = (function () {
         '</button>' +
       '</form>' +
       quickLoginHTML() +
-      '<div class="auth-divider"><span>Need access?</span></div>' +
-      '<p class="auth-help">Need client access? <a href="/contact">Contact the TGNE team</a> to get started.</p>' +
       '<p class="auth-security">' + icon('shield', 14) + '<span>TGNE Solutions · Secure client access</span></p>';
-  }
-
-  function resetCardHTML() {
-    return '<button type="button" class="auth-back" id="loginBack">' + icon('chevronLeft', 15) + '<span>Back to sign in</span></button>' +
-      '<div class="login-card-head">' +
-        '<p class="auth-kicker">Account help</p>' +
-        '<h2>Reset your password</h2>' +
-        '<p class="login-sub">For a password reset, contact the TGNE team. We will verify your account before restoring access.</p>' +
-      '</div>' +
-      '<ol class="auth-steps">' +
-        '<li><span class="step-no">1</span><div><strong>Contact TGNE</strong><small>Use the contact page, call your account manager, or visit the office in person.</small></div></li>' +
-        '<li><span class="step-no">2</span><div><strong>Confirm your identity</strong><small>The TGNE team verifies your details before restoring access.</small></div></li>' +
-        '<li><span class="step-no">3</span><div><strong>Sign in again</strong><small>Use the new password on this page. Your access follows the same role.</small></div></li>' +
-      '</ol>' +
-      '<a class="auth-submit auth-submit-link" href="/contact"><span>Contact TGNE</span>' + icon('arrowRight', 16) + '</a>' +
-      '<p class="auth-security">' + icon('key', 14) + '<span>Never share your password by email or WhatsApp</span></p>';
   }
 
   function loginScreenHTML() {
@@ -269,20 +248,6 @@ const Auth = (function () {
         '<div class="login-card" id="loginCard">' + signInCardHTML() + '</div>' +
       '</section>' +
     '</main>';
-  }
-
-  function showForgotView() {
-    const card = document.getElementById('loginCard');
-    if (!card) return;
-    card.innerHTML = resetCardHTML();
-    document.title = 'Reset access — TGNE Solutions';
-    const back = card.querySelector('#loginBack');
-    if (back) back.addEventListener('click', showLogin);
-    const heading = card.querySelector('h2');
-    if (heading) {
-      heading.setAttribute('tabindex', '-1');
-      try { heading.focus(); } catch (err) { /* Focus is a convenience. */ }
-    }
   }
 
   function bindSignIn(root) {
@@ -314,9 +279,6 @@ const Auth = (function () {
       password.addEventListener('keyup', syncCaps);
       password.addEventListener('blur', function () { if (caps) caps.hidden = true; });
     }
-
-    const forgot = root.querySelector('#loginForgot');
-    if (forgot) forgot.addEventListener('click', showForgotView);
 
     root.querySelectorAll('[data-quick-role]').forEach(function (button) {
       button.addEventListener('click', function () {

@@ -5,7 +5,7 @@ import { workspacePathForUser } from '../../../../lib/auth-redirect';
 import { accessClassForRoles } from '../../../../lib/roles';
 import { prisma } from '../../../../lib/prisma';
 import { checkRateLimit, clientIp } from '../../../../lib/rate-limit.mjs';
-import { demoAccountByEmail } from '../../../../lib/demo-accounts';
+import { demoAccountByEmail, demoPasswordFor } from '../../../../lib/demo-accounts';
 
 export const runtime = 'nodejs';
 
@@ -68,7 +68,7 @@ export async function POST(request) {
   // only source of truth, so a hardcoded demo credential can never shadow or
   // re-route a real account.
   const demoAccount = isLocalDemoMode() ? demoAccountByEmail(email) : null;
-  if (demoAccount && demoAccount.password === password) {
+  if (demoAccount && password.length >= 12 && demoPasswordFor(demoAccount) === password) {
     const roleKeys = [demoAccount.role];
     const token = await createSession(demoSessionUserId(demoAccount.role), { demo: true, roleKeys });
     const response = NextResponse.json(

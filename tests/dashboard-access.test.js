@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { hasPermission, permissionsForRoles, resolveDashboardAccess } from '../lib/dashboard-access.js';
+import { canUsePermission, hasPermission, permissionsForRoles, resolveDashboardAccess } from '../lib/dashboard-access.js';
 import { canViewPanel, OFFICE_PANELS } from '../lib/office-panels.js';
 
 test('resolves the highest-priority workspace role', () => {
@@ -33,6 +33,22 @@ test('plain administrators get the same wildcard workspace access', () => {
   assert.equal(access.visual, 'admin');
   assert.ok(permissionsForRoles(['ADMIN']).includes('*'));
   assert.deepEqual(permissionsForRoles(['OFFICE_MANAGER'], ['visitors.view']), ['visitors.view']);
+});
+
+test('admin wildcard reaches client APIs while client-only accounts remain scoped', () => {
+  const admin = { roles: [{ key: 'SUPER_ADMIN' }], permissions: ['*'] };
+  assert.equal(canUsePermission(admin, 'client.view'), true);
+  assert.equal(canUsePermission(admin, 'client.manage'), true);
+  assert.equal(canUsePermission(admin, 'client.portal'), true);
+
+  const client = {
+    roles: [{ key: 'CLIENT' }],
+    permissions: ['*', 'client.portal', 'client.services']
+  };
+  assert.equal(canUsePermission(client, 'client.portal'), true);
+  assert.equal(canUsePermission(client, 'client.services'), true);
+  assert.equal(canUsePermission(client, 'client.manage'), false);
+  assert.equal(canUsePermission(client, 'finance.view'), false);
 });
 
 test('receptionists get visitor panels but no restricted office tools', () => {

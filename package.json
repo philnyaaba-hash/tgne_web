@@ -7,6 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "test": "node --test tests/*.test.js",
+    "check:secrets": "node scripts/check-secrets.mjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "playwright test tests/e2e/accessibility.spec.js",

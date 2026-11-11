@@ -3,9 +3,21 @@ import { test, expect } from '@playwright/test';
 // These checks need the seeded role accounts (npm run seed:demo). They are
 // skipped when the database is unavailable so the public suite still runs.
 const ACCOUNTS = [
-  { email: 'admin@tgnesolutions.com', password: 'Admin123!', path: '/admin' },
-  { email: 'manager@tgnesolutions.com', password: 'Manager123!', path: '/admin' },
-  { email: 'client@tgnesolutions.com', password: 'Client123!', path: '/client' }
+  {
+    email: process.env.TEST_ADMIN_EMAIL || 'admin@tgnesolutions.com',
+    password: process.env.TEST_ADMIN_PASSWORD || '',
+    path: '/admin'
+  },
+  {
+    email: process.env.TEST_MANAGER_EMAIL || 'manager@tgnesolutions.com',
+    password: process.env.TEST_MANAGER_PASSWORD || '',
+    path: '/admin'
+  },
+  {
+    email: process.env.TEST_CLIENT_EMAIL || 'client@tgnesolutions.com',
+    password: process.env.TEST_CLIENT_PASSWORD || '',
+    path: '/client'
+  }
 ];
 
 const ACCOUNT_SWITCHING = [
@@ -32,8 +44,16 @@ async function signIn(page, account) {
   await page.waitForURL((url) => !url.pathname.startsWith('/login'), { timeout: 45_000 });
 }
 
+test('login page omits password recovery and workspace-access links', async ({ page }) => {
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+  await expect(page.locator('#login-email')).toBeVisible();
+  await expect(page.getByText('Forgot password?', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Request workspace access', { exact: true })).toHaveCount(0);
+});
+
 for (const account of ACCOUNTS) {
   test(`sign-in routes ${account.email} to ${account.path}`, async ({ page, request }) => {
+    test.skip(!account.password, 'Set the matching TEST_*_PASSWORD for a dedicated non-production test account.');
     const probe = await request.post('/api/auth/login', {
       data: { email: account.email, password: account.password },
       headers: { origin: 'http://localhost:3000' },
@@ -49,6 +69,7 @@ for (const account of ACCOUNTS) {
 
 test('signed-in staff see their profile in the header', async ({ page, request }) => {
   const account = ACCOUNTS[0];
+  test.skip(!account.password, 'Set TEST_ADMIN_PASSWORD for a dedicated non-production test account.');
   const probe = await request.post('/api/auth/login', {
     data: { email: account.email, password: account.password },
     headers: { origin: 'http://localhost:3000' },
@@ -65,6 +86,7 @@ test('signed-in staff see their profile in the header', async ({ page, request }
 });
 
 test('canonical admin and client URLs enforce role-based redirects', async ({ page, request }) => {
+  test.skip(!ACCOUNTS[0].password || !ACCOUNTS[2].password, 'Set TEST_ADMIN_PASSWORD and TEST_CLIENT_PASSWORD for dedicated non-production test accounts.');
   const adminProbe = await request.post('/api/auth/login', {
     data: { email: ACCOUNTS[0].email, password: ACCOUNTS[0].password },
     headers: { origin: 'http://localhost:3000' },
@@ -106,7 +128,7 @@ test('canonical admin and client URLs enforce role-based redirects', async ({ pa
 });
 
 test('switches admin and two separate client accounts without clearing browser storage', async ({ page, request }) => {
-  test.skip(!ACCOUNT_SWITCHING[2].email || !ACCOUNT_SWITCHING[2].password, 'Set E2E_CLIENT_B_EMAIL and E2E_CLIENT_B_PASSWORD to enable two-client isolation coverage.');
+  test.skip(ACCOUNT_SWITCHING.some((account) => !account.email || !account.password), 'Set the admin, client, and E2E_CLIENT_B credentials for dedicated non-production test accounts.');
   const probes = await Promise.all(ACCOUNT_SWITCHING.map((account) => request.post('/api/auth/login', {
     data: { email: account.email, password: account.password },
     headers: { origin: 'http://localhost:3000' },
