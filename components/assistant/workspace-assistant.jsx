@@ -20,14 +20,14 @@ const TOPIC_LABELS = {
 };
 
 const ROUTE_TOPICS = [
-  [/^#\/(office-visitors|office-reports)/, 'visitors'],
-  [/^#\/office-attendance/, 'attendance'],
-  [/^#\/(office-finance|finance)/, 'finance'],
-  [/^#\/office-survey/, 'survey'],
-  [/^#\/(office-clients|client-portfolio|buyers)/, 'clients'],
-  [/^#\/(office-land|map|plots)/, 'pipeline'],
-  [/^#\/(office-staff|staff)/, 'staff'],
-  [/^#\/office-audit/, 'audit']
+  [/^\/admin\/(office-visitors|office-reports)/, 'visitors'],
+  [/^\/admin\/office-attendance/, 'attendance'],
+  [/^\/admin\/(office-finance|finance)/, 'finance'],
+  [/^\/admin\/office-survey/, 'survey'],
+  [/^\/admin\/(office-clients|client-portfolio|buyers)/, 'clients'],
+  [/^\/admin\/(office-land|map|plots)/, 'pipeline'],
+  [/^\/admin\/(users|office-staff|staff)/, 'staff'],
+  [/^\/admin\/office-audit/, 'audit']
 ];
 
 function ChatIcon() {
@@ -119,13 +119,17 @@ export default function WorkspaceAssistant() {
 
   useEffect(() => {
     const applyRoute = () => {
-      const hash = window.location.hash || '';
-      const match = ROUTE_TOPICS.find(([pattern]) => pattern.test(hash));
+      const path = window.location.pathname || '';
+      const match = ROUTE_TOPICS.find(([pattern]) => pattern.test(path));
       setRouteTopic(match ? match[1] : null);
     };
     applyRoute();
-    window.addEventListener('hashchange', applyRoute);
-    return () => window.removeEventListener('hashchange', applyRoute);
+    window.addEventListener('workspace-route-change', applyRoute);
+    window.addEventListener('popstate', applyRoute);
+    return () => {
+      window.removeEventListener('workspace-route-change', applyRoute);
+      window.removeEventListener('popstate', applyRoute);
+    };
   }, []);
 
   // With no conversation yet, lead with prompts that match the page the user is on.

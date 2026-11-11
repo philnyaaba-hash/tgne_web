@@ -13,7 +13,7 @@ export default function OfflinePage() {
         <h1>You are offline</h1>
         <p>The connection dropped, so this page was not saved on the device. The dashboard shell works offline; the public website always needs a connection. Anything that needs the server resumes when the connection returns.</p>
         <div className="offline-actions">
-          <a className="offline-button primary" href="/dashboard">Open cached workspace</a>
+          <a className="offline-button primary" href="/admin">Retry admin workspace</a>
           <a className="offline-button secondary" href="/">Land storefront</a>
         </div>
         <p className="offline-note">Nothing you entered is lost. Wait for the connection to return, then retry the action.</p>

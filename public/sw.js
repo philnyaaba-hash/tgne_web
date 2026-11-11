@@ -1,15 +1,12 @@
 /* TGNE Solutions — offline shell for the staff dashboard only.
    The public marketing site is never cached or served offline: it stays live. */
-const VERSION = 'tgne-next-v15';
+const VERSION = 'tgne-next-v16';
 const SHELL_CACHE = VERSION + '-shell';
 const RUNTIME_CACHE = VERSION + '-runtime';
 const OFFLINE_PAGE = '/offline';
-const DASHBOARD = '/dashboard';
+const ADMIN_WORKSPACE = '/admin';
 
-// The dashboard loads legacy scripts on demand. They are cached after first
-// use by staleWhileRevalidate; precaching all of them slowed every install.
 const BASE_ASSETS = [
-  DASHBOARD,
   OFFLINE_PAGE,
   '/manifest.json',
   '/icons/icon-192.png',
@@ -21,7 +18,7 @@ async function addAll(cache, urls) {
 }
 
 async function precacheBuildAssets(cache) {
-  for (const page of [DASHBOARD, OFFLINE_PAGE]) {
+  for (const page of [OFFLINE_PAGE]) {
     try {
       const response = await fetch(page, { cache: 'reload', credentials: 'same-origin' });
       if (!response.ok) continue;
@@ -61,12 +58,14 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-function isDashboard(pathname) {
-  return pathname === DASHBOARD || pathname.startsWith(DASHBOARD + '/');
+function isAdminWorkspace(pathname) {
+  return pathname === ADMIN_WORKSPACE || pathname.startsWith(ADMIN_WORKSPACE + '/');
 }
 
 function isPrivate(pathname) {
-  return pathname.startsWith('/api/') || pathname.startsWith('/office/');
+  return pathname.startsWith('/api/') || pathname.startsWith('/office/') ||
+    isAdminWorkspace(pathname) || pathname === '/client' || pathname.startsWith('/client/') ||
+    pathname === '/login';
 }
 
 function isBuildAsset(pathname) {
@@ -86,16 +85,11 @@ async function networkFirst(request) {
   const cache = await caches.open(RUNTIME_CACHE);
   try {
     const response = await fetch(request);
-    if (response.ok && response.type === 'basic' && isDashboard(new URL(request.url).pathname)) {
-      cache.put(request, response.clone());
-    }
     return response;
   } catch (error) {
     const cached = (await cache.match(request)) || (await caches.match(request));
     if (cached) return cached;
     if (request.mode === 'navigate') {
-      const shell = await caches.match(DASHBOARD);
-      if (shell) return shell;
       return offlineFallback();
     }
     return Response.error();
@@ -138,20 +132,16 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
 
   if (url.origin !== location.origin) return;
-  if (request.method !== 'GET' || isPrivate(url.pathname)) return;
+  if (request.method !== 'GET') return;
 
   if (request.mode === 'navigate') {
-    // Only the dashboard and the offline notice are served from the shell.
-    if (isDashboard(url.pathname) || url.pathname === OFFLINE_PAGE) {
+    if (isPrivate(url.pathname) || url.pathname === OFFLINE_PAGE) {
       event.respondWith(networkFirst(request));
     }
     return;
   }
 
-  if (isDashboard(url.pathname) && request.headers.get('RSC') === '1') {
-    event.respondWith(networkFirst(request));
-    return;
-  }
+  if (isPrivate(url.pathname)) return;
 
   if (isBuildAsset(url.pathname)) {
     event.respondWith(cacheFirst(request));

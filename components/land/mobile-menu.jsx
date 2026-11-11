@@ -2,40 +2,29 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { clearCachedUserState } from '../../lib/session-cleanup';
 import Icon from './icons';
 
 function isActive(pathname, href) {
   return href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-const STAFF_ROLES = ['SUPER_ADMIN', 'OFFICE_MANAGER', 'ACCOUNTANT', 'SURVEYOR', 'RECEPTIONIST'];
-
-function isStaff(user) {
-  return user && user.roles.some((r) => STAFF_ROLES.includes(r.key));
-}
-
-export default function MobileMenu({ links, user }) {
+export default function MobileMenu({ links, signedIn }) {
   const pathname = usePathname();
-  const isStaffUser = isStaff(user);
+  const [logoutError, setLogoutError] = useState('');
 
-  const navLinks = [
-    { href: '/', label: 'Home', children: [{ href: '/about', label: 'About Us' }] },
-    { href: '/services', label: 'Our Services' },
-    { href: '/shop', label: 'Products' },
-    { href: '/gallery', label: 'Gallery' },
-    { href: '/case-studies', label: 'Case Studies' },
-    { href: '/blog', label: 'Blog' },
-    { href: '/contact', label: 'Contact Us' }
-  ];
-
-  if (user) {
-    if (isStaffUser) {
-      navLinks.push({ href: '/dashboard', label: 'Dashboard' });
-    } else {
-      navLinks.push({ href: '/client', label: 'Client Portal' });
+  async function handleLogout() {
+    setLogoutError('');
+    clearCachedUserState();
+    try {
+      const response = await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Your session could not be invalidated.');
+      window.location.assign('/login');
+    } catch (error) {
+      setLogoutError(error.message || 'Sign out could not be completed. Please try again.');
     }
-  } else {
-    navLinks.push({ href: '/login', label: 'Client Login' });
   }
 
   return (
@@ -49,8 +38,8 @@ export default function MobileMenu({ links, user }) {
         <Icon name="menu" size={22} />
       </summary>
       <nav id="land-mobile-nav" className="ls-mobile-nav" aria-label="Mobile navigation">
-        {navLinks.map((link) => {
-          if (!link.children) {
+        {links.map((link) => {
+          if (!link.children || link.children.length === 0) {
             return (
               <Link
                 key={link.href}
@@ -82,20 +71,18 @@ export default function MobileMenu({ links, user }) {
           );
         })}
         <Link href="/contact" className="ls-button ls-button-primary">Contact Us <Icon name="arrowRight" size={15} /></Link>
-        {user && (
-          <button type="button" className="ls-button ls-button-primary" onClick={handleLogout} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 6, border: '1px solid var(--ls-line)', background: 'transparent', color: 'var(--ls-ink)', fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'background-color .15s ease', width: '100%' }}>
+        {signedIn && (
+          <button
+            type="button"
+            className="ls-mobile-signout"
+            onClick={handleLogout}
+          >
             <Icon name="logout" size={14} />
             Sign out
           </button>
         )}
+        {logoutError && <p role="alert">{logoutError}</p>}
       </nav>
     </details>
   );
-}
-
-async function handleLogout() {
-  try {
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
-  } catch {}
-  window.location.href = '/login';
 }

@@ -12,7 +12,7 @@ function greeting() {
 }
 
 export default function OverviewPanel({ user, navigate }) {
-  const [data, setData] = useState({ visits: null, staff: null, reports: null, finance: null, survey: null, attendance: null, land: null });
+  const [data, setData] = useState({ visits: null, staff: null, reports: null, finance: null, clients: null, attendance: null });
   const [loading, setLoading] = useState(true);
 
   const can = (permission) => user.permissions.includes(permission);
@@ -25,9 +25,8 @@ export default function OverviewPanel({ user, navigate }) {
         can('staff.view') ? api('/api/office/users') : Promise.resolve(null),
         can('reports.view') ? api('/api/office/reports') : Promise.resolve(null),
         can('finance.view') ? api('/api/office/finance') : Promise.resolve(null),
-        can('field.view') ? api('/api/office/survey') : Promise.resolve(null),
-        api('/api/office/attendance'),
-        can('land.view') ? api('/api/office/land/pipeline') : Promise.resolve(null)
+        can('client.view') ? api('/api/office/clients') : Promise.resolve(null),
+        api('/api/office/attendance')
       ];
       const settled = await Promise.allSettled(requests);
       if (!active) return;
@@ -37,9 +36,8 @@ export default function OverviewPanel({ user, navigate }) {
         staff: value(1),
         reports: value(2),
         finance: value(3),
-        survey: value(4),
-        attendance: value(5),
-        land: value(6)
+        clients: value(4),
+        attendance: value(5)
       });
       setLoading(false);
     }
@@ -54,9 +52,11 @@ export default function OverviewPanel({ user, navigate }) {
   const myRecord = data.attendance?.myRecord;
   const mySummary = data.attendance?.summary;
   const finance = data.finance?.summary;
-  const survey = data.survey?.stats;
   const staffCount = data.staff?.users?.length || 0;
   const activeStaff = data.staff?.users?.filter((person) => person.status === 'ACTIVE').length || 0;
+  const services = data.clients?.services || [];
+  const openServices = services.filter((service) => !['COMPLETED', 'CANCELLED'].includes(service.status));
+  const awaitingQuote = services.filter((service) => service.status === 'SUBMITTED').length;
   const attention = [];
 
   if (can('visitors.view')) {
@@ -64,34 +64,16 @@ export default function OverviewPanel({ user, navigate }) {
     if (counts.OVERDUE) attention.push({ tone: 'danger', icon: 'alert', title: counts.OVERDUE + ' visitor' + (counts.OVERDUE === 1 ? '' : 's') + ' past expected check-out', detail: 'Confirm departure, collect the visitor card, and revoke QR access.', action: () => navigate('visitors') });
   }
   if (!myRecord?.checkInAt) attention.push({ tone: 'info', icon: 'clock', title: 'You have not clocked in today', detail: 'Record your attendance from the attendance workspace.', action: () => navigate('attendance') });
-  if (can('field.approve') && survey?.submittedReports) attention.push({ tone: 'warn', icon: 'report', title: survey.submittedReports + ' field report' + (survey.submittedReports === 1 ? '' : 's') + ' submitted for review', detail: 'Review survey findings and approve or return them.', action: () => navigate('survey') });
+  if (can('client.view') && awaitingQuote) attention.push({ tone: 'warn', icon: 'file', title: awaitingQuote + ' service request' + (awaitingQuote === 1 ? '' : 's') + ' awaiting a quote', detail: 'Review client requirements and prepare a service estimate.', action: () => navigate('clients') });
   if (can('finance.approve') && finance?.expensesPending) attention.push({ tone: 'info', icon: 'money', title: 'Expenses awaiting approval', detail: 'Pending claims total ' + money(finance.expensesPending, finance.currency) + '.', action: () => navigate('finance') });
 
-  const land = data.land;
-  const pendingReservations = land?.stages?.find((stage) => stage.value === 'PENDING')?.count || 0;
-  const unpostedReservations = land?.accounts?.awaitingSync || 0;
-  if (can('land.view') && (pendingReservations || unpostedReservations)) {
-    attention.push({
-      tone: pendingReservations ? 'warn' : 'info',
-      icon: 'building',
-      title: pendingReservations
-        ? pendingReservations + ' reservation request' + (pendingReservations === 1 ? '' : 's') + ' awaiting confirmation'
-        : unpostedReservations + ' reservation' + (unpostedReservations === 1 ? '' : 's') + ' not posted to accounts',
-      detail: pendingReservations
-        ? 'Confirm the payment before raising the invoice; completing a request posts the payment to finance.'
-        : 'Run Sync accounts from the land storefront to raise invoices and record payments.',
-      action: () => navigate('land')
-    });
-  }
-
   const quick = [
+    { key: 'clients', label: 'Clients & services', detail: 'Manage relationships and requests', icon: 'users', show: can('client.view') },
     { key: 'visitors', label: 'Register a visitor', detail: 'Appointments and walk-ins', icon: 'badge', show: can('visitors.register') },
     { key: 'verify', label: 'Verify a pass', detail: 'Scan a visitor QR code', icon: 'scan', show: can('visitors.view') },
     { key: 'staff', label: 'Staff directory', detail: 'People, roles, and contacts', icon: 'users', show: can('staff.view') },
     { key: 'reports', label: 'Visitor reports', detail: 'Movement and compliance', icon: 'report', show: can('reports.view') },
     { key: 'finance', label: 'Finance desk', detail: 'Invoices, payments, expenses', icon: 'money', show: can('finance.view') },
-    { key: 'land', label: 'Land storefront', detail: 'Listings, reservations, accounts', icon: 'building', show: can('land.view') },
-    { key: 'survey', label: 'Field work', detail: 'Projects, parcels, and tasks', icon: 'map', show: can('field.view') },
     { key: 'settings', label: 'System settings', detail: 'Cards, email, and security', icon: 'settings', show: can('settings.manage') }
   ].filter((item) => item.show);
 
@@ -102,18 +84,18 @@ export default function OverviewPanel({ user, navigate }) {
   return (
     <>
       <PageHeading
-        eyebrow="OFFICE OPERATIONS"
+        eyebrow="TGNE BUSINESS MANAGEMENT"
         title={greeting() + ', ' + greetingName()}
         description={formatDate(new Date(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + ' · ' + (user.roles.map((role) => role.name).join(', ') || 'Office staff')}
         actions={can('visitors.register') ? <button className="office-button primary" type="button" onClick={() => navigate('visitors')}><Icon name="plus" size={15} /> Register visitor</button> : null}
       />
 
-      {can('visitors.view') ? (
+      {can('client.view') ? (
         <div className="office-stat-grid">
-          <Stat label="Visitors today" value={loading ? '—' : visitsToday} hint="Expected, inside, and checked out" icon="badge" />
-          <Stat label="Currently inside" value={loading ? '—' : counts.INSIDE || 0} hint="Live occupancy" icon="users" tone="positive" />
-          <Stat label="Awaiting approval" value={loading ? '—' : counts.AWAITING_APPROVAL || 0} hint="Manager decision required" icon="shield" tone={counts.AWAITING_APPROVAL ? 'warn' : ''} />
-          <Stat label="Overdue" value={loading ? '—' : counts.OVERDUE || 0} hint="Past expected check-out" icon="alert" tone={counts.OVERDUE ? 'danger' : ''} />
+          <Stat label="Clients" value={loading ? '—' : data.clients?.clients?.length || 0} hint="Registered client workspaces" icon="users" />
+          <Stat label="Open service requests" value={loading ? '—' : openServices.length} hint="Active client work" icon="settings" tone={openServices.length ? 'warn' : ''} />
+          <Stat label="Awaiting quote" value={loading ? '—' : awaitingQuote} hint="Requests to review" icon="file" tone={awaitingQuote ? 'warn' : ''} />
+          <Stat label="Outstanding" value={money(finance?.outstanding, finance?.currency)} hint="Open customer balances" icon="money" tone={finance?.outstanding ? 'warn' : ''} />
         </div>
       ) : can('finance.view') ? (
         <div className="office-stat-grid">
@@ -122,12 +104,12 @@ export default function OverviewPanel({ user, navigate }) {
           <Stat label="Outstanding" value={money(finance?.outstanding, finance?.currency)} hint="Open customer balances" icon="alert" tone={finance?.outstanding ? 'warn' : ''} />
           <Stat label="Pending expenses" value={money(finance?.expensesPending, finance?.currency)} hint="Awaiting approval" icon="clock" />
         </div>
-      ) : can('field.view') ? (
+      ) : can('visitors.view') ? (
         <div className="office-stat-grid">
-          <Stat label="Active projects" value={survey?.activeProjects || 0} hint={(survey?.projects || 0) + ' projects total'} icon="map" />
-          <Stat label="Open tasks" value={survey?.openTasks || 0} hint="Assigned and in progress" icon="clock" tone="warn" />
-          <Stat label="Submitted reports" value={survey?.submittedReports || 0} hint="Awaiting review" icon="report" />
-          <Stat label="Approved reports" value={survey?.approvedReports || 0} hint="Completed field work" icon="check" tone="positive" />
+          <Stat label="Visitors today" value={loading ? '—' : visitsToday} hint="Expected, inside, and checked out" icon="badge" />
+          <Stat label="Currently inside" value={loading ? '—' : counts.INSIDE || 0} hint="Live occupancy" icon="users" tone="positive" />
+          <Stat label="Awaiting approval" value={loading ? '—' : counts.AWAITING_APPROVAL || 0} hint="Manager decision required" icon="shield" tone={counts.AWAITING_APPROVAL ? 'warn' : ''} />
+          <Stat label="Overdue" value={loading ? '—' : counts.OVERDUE || 0} hint="Past expected check-out" icon="alert" tone={counts.OVERDUE ? 'danger' : ''} />
         </div>
       ) : (
         <div className="office-stat-grid">

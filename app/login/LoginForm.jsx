@@ -4,19 +4,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import Icon from '../../components/land/icons';
+import { isSafeRedirectPath, workspacePathForUser } from '../../lib/auth-redirect';
+import { clearCachedUserState } from '../../lib/session-cleanup';
 import styles from './login.module.css';
 
 const LOGIN_API = '/api/auth/login';
 const SESSION_API = '/api/auth/session';
 const REMEMBER_KEY = 'tgne.login.remember';
-const DEFAULT_REDIRECT = '/client';
 
-// Only allow relative, same-origin paths. No external URLs, no protocol-relative
-// URLs (//evil.com), no javascript: or data: schemes.
-function isSafeRedirectPath(path) {
-  if (typeof path !== 'string' || !path) return false;
-  // Must start with / and not be // (protocol-relative) or /\\ (Windows path).
-  return /^\/[^\/\\]/.test(path);
+// The public home page is a valid destination; every other path must be a
+// safe same-origin path.
+function isAllowedRedirect(path) {
+  return path === '/' || isSafeRedirectPath(path);
 }
 
 export default function LoginForm() {
@@ -27,7 +26,13 @@ export default function LoginForm() {
   const [remember, setRemember] = useState(false);
   const [status, setStatus] = useState('idle');
   const [error, setError] = useState('');
+  const [hydrated, setHydrated] = useState(false);
   const formRef = useRef(null);
+  const authAttemptRef = useRef(false);
+
+  // Until React has attached the submit handler the form must not submit
+  // natively, otherwise the password would land in the URL query string.
+  useEffect(() => setHydrated(true), []);
 
   // Restore remembered email on mount.
   useEffect(() => {
@@ -39,7 +44,7 @@ export default function LoginForm() {
     }
   }, []);
 
-  // If already authenticated (has a session), redirect away from the login page.
+  // If already authenticated, route from the server-loaded account role.
   useEffect(() => {
     let cancelled = false;
     async function checkSession() {
@@ -47,9 +52,11 @@ export default function LoginForm() {
         const res = await fetch(SESSION_API, { credentials: 'same-origin', headers: { 'cache-control': 'no-store' } });
         if (res.ok) {
           const data = await res.json();
-          if (data.user && !cancelled) {
-            const next = isSafeRedirectPath(DEFAULT_REDIRECT) ? DEFAULT_REDIRECT : '/client';
-            router.replace(next);
+          if (data.user && !cancelled && !authAttemptRef.current) {
+            const next = workspacePathForUser(data.user);
+            if (isAllowedRedirect(next) && next !== pathname) {
+              router.replace(next);
+            }
           }
         }
       } catch {
@@ -63,6 +70,7 @@ export default function LoginForm() {
   const handleSubmit = useCallback(
     async (event) => {
       event.preventDefault();
+      authAttemptRef.current = true;
       setError('');
       setStatus('submitting');
 
@@ -77,6 +85,7 @@ export default function LoginForm() {
         const data = await res.json().catch(() => ({}));
 
         if (!res.ok) {
+          authAttemptRef.current = false;
           setStatus('error');
           setError(data?.error || 'Email or password is incorrect.');
           return;
@@ -88,28 +97,33 @@ export default function LoginForm() {
           try { window.localStorage.removeItem(REMEMBER_KEY); } catch {}
         }
 
+        // Drop any cached data from a previous account before the new session
+        // is used, so account switching cannot leak stale workspace state.
+        clearCachedUserState();
+
         setStatus('ok');
-        try {
-          const sessionRes = await fetch(SESSION_API, {
-            credentials: 'same-origin',
-            headers: { 'cache-control': 'no-store' }
-          });
-          const sessionData = await sessionRes.json().catch(() => ({}));
-          const userRoles = sessionData.user?.roles || [];
-          const STAFF_ROLES = ['SUPER_ADMIN', 'OFFICE_MANAGER', 'ACCOUNTANT', 'SURVEYOR', 'RECEPTIONIST'];
-          const isStaff = userRoles.some((r) => STAFF_ROLES.includes(r.key));
-          const next = isStaff ? '/dashboard' : '/client';
-          router.replace(next);
-        } catch {
-          // Fall back to default redirect if session fetch fails
-          router.replace(DEFAULT_REDIRECT);
+        const sessionRes = await fetch(SESSION_API, {
+          credentials: 'same-origin',
+          cache: 'no-store',
+          headers: { 'cache-control': 'no-store' }
+        });
+        const sessionData = await sessionRes.json().catch(() => ({}));
+        if (!sessionRes.ok || !sessionData.user) {
+          authAttemptRef.current = false;
+          setStatus('error');
+          setError('Sign-in succeeded, but your authenticated profile could not be loaded. Please try again.');
+          return;
         }
+        let next = workspacePathForUser(sessionData.user);
+        if (!isAllowedRedirect(next)) next = '/';
+        router.replace(next);
       } catch {
+        authAttemptRef.current = false;
         setStatus('error');
         setError('We could not reach the sign-in service. Check your connection and try again.');
       }
     },
-    [email, password, remember, router, SESSION_API, DEFAULT_REDIRECT]
+    [email, password, remember, router, SESSION_API]
   );
 
   // Show the success state briefly, then redirect (router.replace already called).
@@ -155,7 +169,7 @@ export default function LoginForm() {
 
         <div className={styles.loginHead}>
           <h1>Welcome back</h1>
-          <p>Sign in to your TGNE client portal to manage service requests, orders, invoices and team collaboration.</p>
+          <p>Sign in to your TGNE workspace to manage service requests, orders, invoices and team collaboration.</p>
         </div>
 
         {error ? (
@@ -209,7 +223,7 @@ export default function LoginForm() {
           </label>
 
           <div className={styles.loginActions}>
-            <button type="submit" className={styles.loginSubmit} disabled={status === 'submitting'}>
+            <button type="submit" className={styles.loginSubmit} disabled={!hydrated || status === 'submitting'}>
               {status === 'submitting' ? (
                 <>
                   <span className={styles.loginSpinner} aria-hidden="true"></span>

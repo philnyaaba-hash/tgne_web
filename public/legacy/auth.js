@@ -2,8 +2,9 @@
 'use strict';
 
 const Auth = (function () {
-  const OFFLINE_SESSION_KEY = 'landledger.session.v1';
+  const LEGACY_SESSION_KEY = 'landledger.session.v1';
   const REMEMBER_EMAIL_KEY = 'landledger.login.email.v1';
+  const ADMIN_ROLE_KEYS = ['SUPER_ADMIN', 'ADMIN', 'OFFICE_MANAGER', 'ACCOUNTANT', 'SURVEYOR', 'RECEPTIONIST'];
   let user = null;
   let callbacks = {};
   let signingIn = false;
@@ -25,9 +26,15 @@ const Auth = (function () {
   }
 
   function applySession(payload) {
-    if (!payload) return null;
+    if (!payload) {
+      clearUser();
+      return null;
+    }
     if (typeof payload.demoQuickLogin === 'boolean') demoQuickLogin = payload.demoQuickLogin;
-    if (!payload.user) return null;
+    if (!payload.user) {
+      clearUser();
+      return null;
+    }
     const access = payload.access || {};
     user = {
       id: access.visual || 'viewer',
@@ -51,21 +58,19 @@ const Auth = (function () {
         cache: 'no-store',
         headers: { accept: 'application/json' }
       });
-      if (response.status === 401 || response.status === 403) {
-        try { localStorage.removeItem(OFFLINE_SESSION_KEY); } catch (err) {}
-        return null;
-      }
       if (!response.ok) throw new Error('Session request failed');
       const payload = await response.json();
-      try { localStorage.setItem(OFFLINE_SESSION_KEY, JSON.stringify(payload)); } catch (err) {}
       return applySession(payload);
-    } catch (err) {
-      try {
-        const cached = JSON.parse(localStorage.getItem(OFFLINE_SESSION_KEY) || 'null');
-        if (cached) return applySession(cached);
-      } catch (parseErr) {}
+    } catch {
+      clearUser();
       return null;
     }
+  }
+
+  function clearUser() {
+    user = null;
+    document.body.removeAttribute('data-role');
+    try { localStorage.removeItem(LEGACY_SESSION_KEY); } catch (err) {}
   }
 
   async function restore() {
@@ -75,6 +80,7 @@ const Auth = (function () {
   async function signIn(email, password) {
     if (signingIn) return { error: 'A sign-in is already in progress.' };
     signingIn = true;
+    clearUser();
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -97,13 +103,22 @@ const Auth = (function () {
   }
 
   function logout() {
-    user = null;
-    document.body.removeAttribute('data-role');
-    try { localStorage.removeItem(OFFLINE_SESSION_KEY); } catch (err) {}
-    fetch('/api/auth/session', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
-    if (callbacks.onLogout) callbacks.onLogout();
+    clearUser();
     showLogin();
-    return true;
+    return fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' })
+      .then(function (response) {
+        if (!response.ok) throw new Error('Session invalidation failed (' + response.status + ').');
+        if (callbacks.onLogout) callbacks.onLogout();
+        return true;
+      })
+      .catch(function () {
+        const error = document.getElementById('loginError');
+        if (error) {
+          error.textContent = 'Sign out could not be completed. Please try again.';
+          error.hidden = false;
+        }
+        return false;
+      });
   }
 
   function user_() {
@@ -125,7 +140,7 @@ const Auth = (function () {
       const clientPanel = typeof OFFICE_ROUTES !== 'undefined' ? OFFICE_ROUTES[route] : '';
       return Boolean(clientPanel) && user.officePanels.includes(clientPanel);
     }
-    if (user.roleKey === 'CLIENT') return false;
+    if (!ADMIN_ROLE_KEYS.includes(user.roleKey)) return false;
     if (route.indexOf('office-') === 0) {
       const panel = typeof OFFICE_ROUTES !== 'undefined' ? OFFICE_ROUTES[route] : '';
       return Boolean(panel) && user.officePanels.includes(panel);
@@ -311,6 +326,7 @@ const Auth = (function () {
   }
 
   async function quickSignIn(role, button) {
+    clearUser();
     const error = document.getElementById('loginError');
     const buttons = document.querySelectorAll('[data-quick-role]');
     function showError(message) {

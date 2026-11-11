@@ -10,29 +10,18 @@ export async function GET() {
   if (auth.response) return auth.response;
 
   try {
-    const [clients, resales, services, assignees] = await Promise.all([
+    const [clients, services, assignees] = await Promise.all([
       prisma.clientProfile.findMany({
         include: {
           user: { select: { id: true, name: true, email: true, phone: true, status: true } },
-          _count: { select: { holdings: true, resales: true, services: true, documents: true } }
+          _count: { select: { services: true, documents: true } }
         },
         orderBy: { createdAt: 'desc' },
         take: 200
       }),
-      prisma.resaleRequest.findMany({
-        include: {
-          client: { include: { user: { select: { name: true, email: true, phone: true } } } },
-          holding: { select: { id: true, title: true, titleStatus: true } },
-          listing: { select: { id: true, slug: true, status: true } },
-          reviewedBy: { select: { name: true } }
-        },
-        orderBy: [{ status: 'asc' }, { createdAt: 'desc' }],
-        take: 100
-      }),
       prisma.serviceRequest.findMany({
         include: {
           client: { include: { user: { select: { name: true, email: true, phone: true } } } },
-          holding: { select: { id: true, title: true } },
           assignedTo: { select: { id: true, name: true, jobTitle: true } },
           updates: { orderBy: { createdAt: 'desc' }, take: 1 }
         },
@@ -42,7 +31,7 @@ export async function GET() {
       prisma.user.findMany({
         where: {
           status: 'ACTIVE',
-          roles: { some: { role: { key: { in: ['SURVEYOR', 'OFFICE_MANAGER'] } } } }
+          roles: { some: { role: { key: { notIn: ['CLIENT', 'VISITOR'] } } } }
         },
         select: { id: true, name: true, jobTitle: true },
         orderBy: { name: 'asc' },
@@ -52,16 +41,12 @@ export async function GET() {
 
     return NextResponse.json({
       clients,
-      resales,
       services,
       assignees,
       canManage: auth.user.permissions.includes('client.manage'),
       canFinance: auth.user.permissions.includes('finance.manage'),
       stats: {
         clients: clients.length,
-        holdings: clients.reduce((total, client) => total + client._count.holdings, 0),
-        pendingResales: resales.filter((resale) => resale.status === 'SUBMITTED').length,
-        liveResales: resales.filter((resale) => resale.status === 'LIVE').length,
         openServices: services.filter((service) => !['COMPLETED', 'CANCELLED'].includes(service.status)).length,
         awaitingQuote: services.filter((service) => service.status === 'SUBMITTED').length
       }

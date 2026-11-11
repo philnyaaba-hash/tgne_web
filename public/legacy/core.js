@@ -318,20 +318,32 @@ function initIcons(root) {
 }
 
 /* ---------------- Routing ---------------- */
-const ROUTES = ['dashboard', 'tasks', 'reports', 'office-reports', 'map', 'plots', 'office-survey', 'leads', 'sales', 'receipts', 'buyers', 'complaints', 'documents', 'maintenance', 'accounting', 'finance', 'finance-accounts', 'finance-journals', 'finance-ledger', 'finance-statements', 'finance-audit', 'office-finance', 'staff', 'office-overview', 'office-compliance', 'office-growth', 'office-clients', 'office-land', 'office-visitors', 'office-verify', 'office-staff', 'office-attendance', 'office-organization', 'office-roles', 'office-audit', 'office-settings', 'settings', 'client-home', 'client-portfolio', 'client-buy', 'client-resale', 'client-services', 'client-payments', 'client-documents', 'client-support'];
+const ROUTES = ['dashboard', 'tasks', 'reports', 'office-reports', 'leads', 'sales', 'receipts', 'buyers', 'complaints', 'documents', 'accounting', 'finance', 'finance-accounts', 'finance-journals', 'finance-ledger', 'finance-statements', 'finance-audit', 'office-finance', 'staff', 'office-overview', 'office-compliance', 'office-growth', 'office-clients', 'office-visitors', 'office-verify', 'office-staff', 'office-attendance', 'office-organization', 'office-roles', 'office-audit', 'office-settings', 'settings'];
+const ROUTE_ALIASES = {
+  map: 'office-overview',
+  plots: 'office-clients',
+  maintenance: 'office-clients',
+  'office-land': 'office-clients',
+  'office-survey': 'office-clients',
+  'client-home': 'dashboard',
+  'client-portfolio': 'office-clients',
+  'client-buy': 'office-clients',
+  'client-resale': 'office-clients',
+  'client-services': 'office-clients',
+  'client-payments': 'office-finance',
+  'client-documents': 'office-clients',
+  'client-support': 'office-clients'
+};
 const PAGE_META = {
-  dashboard: ['Workspace', 'Dashboard'],
+  dashboard: ['TGNE Management', 'Business overview'],
   tasks: ['Workspace', 'Tasks & Reminders'],
   reports: ['Workspace', 'Reports'],
-  map: ['Land', 'Land map'],
-  plots: ['Land', 'Plots'],
   leads: ['Business', 'Leads & Enquiries'],
   sales: ['Business', 'Sales'],
   receipts: ['Business', 'Receipts'],
   buyers: ['Business', 'Buyers'],
   complaints: ['Business', 'Customer complaints'],
   documents: ['Business', 'Document Register'],
-  maintenance: ['Land', 'Maintenance'],
   accounting: ['Business', 'Accounting'],
   finance: ['Finance', 'Finance overview'],
   'finance-accounts': ['Finance', 'Chart of accounts'],
@@ -345,7 +357,6 @@ const PAGE_META = {
   'office-compliance': ['Office', 'Ghana compliance'],
   'office-growth': ['Office', 'Growth & outreach'],
   'office-clients': ['Office', 'Client desk'],
-  'office-land': ['Office', 'Land storefront'],
   'office-visitors': ['Office', 'Visitor operations'],
   'office-verify': ['Office', 'Access verification'],
   'office-staff': ['Office', 'Staff directory'],
@@ -353,18 +364,9 @@ const PAGE_META = {
   'office-organization': ['Office', 'Departments & rooms'],
   'office-reports': ['Office', 'Visitor reports'],
   'office-finance': ['Office', 'Finance desk'],
-  'office-survey': ['Office', 'Surveying'],
   'office-roles': ['Office', 'Roles & security'],
   'office-audit': ['Office', 'Audit history'],
   'office-settings': ['Office', 'Settings'],
-  'client-home': ['My land', 'Overview'],
-  'client-portfolio': ['My land', 'My portfolio'],
-  'client-buy': ['My land', 'Buy land'],
-  'client-resale': ['My land', 'Resell land'],
-  'client-services': ['My land', 'Land services'],
-  'client-payments': ['My land', 'Payments'],
-  'client-documents': ['My land', 'Documents'],
-  'client-support': ['My land', 'Support']
 };
 
 const OFFICE_ROUTES = {
@@ -372,7 +374,6 @@ const OFFICE_ROUTES = {
   'office-compliance': 'compliance',
   'office-growth': 'growth',
   'office-clients': 'clients',
-  'office-land': 'land',
   'office-visitors': 'visitors',
   'office-verify': 'verify',
   'office-staff': 'staff',
@@ -380,49 +381,54 @@ const OFFICE_ROUTES = {
   'office-organization': 'organization',
   'office-reports': 'reports',
   'office-finance': 'finance',
-  'office-survey': 'survey',
   'office-roles': 'roles',
   'office-audit': 'audit',
   'office-settings': 'settings',
-  'client-home': 'client-overview',
-  'client-portfolio': 'client-portfolio',
-  'client-buy': 'client-buy',
-  'client-resale': 'client-resale',
-  'client-services': 'client-services',
-  'client-payments': 'client-payments',
-  'client-documents': 'client-documents',
-  'client-support': 'client-support'
 };
 
 function defaultRoute() {
-  const user = Auth.user();
-  return user && user.roleKey === 'CLIENT' ? 'client-home' : 'dashboard';
+  return 'dashboard';
+}
+
+function routeFromPath() {
+  const pathname = location.pathname.replace(/\/+$/, '') || '/admin';
+  if (pathname === '/admin') return null;
+  if (pathname === '/admin/users') return 'office-staff';
+  if (pathname === '/admin/settings') return 'office-settings';
+  if (!pathname.startsWith('/admin/')) return null;
+  return pathname.slice('/admin/'.length).replace(/\//g, '-');
+}
+
+function routePath(route) {
+  if (route === 'dashboard') return '/admin';
+  if (route === 'office-staff') return '/admin/users';
+  if (route === 'office-settings' || route === 'settings') return '/admin/settings';
+  return '/admin/' + route;
+}
+
+function routeFromHash() {
+  const requested = (location.hash || '').replace(/^#\/?/, '').split('?')[0];
+  return requested ? (ROUTE_ALIASES[requested] || requested) : '';
 }
 
 function currentRoute() {
-  const raw = (location.hash || '').replace(/^#\/?/, '').split('?')[0];
+  const pathRoute = routeFromPath();
+  const raw = pathRoute ? (ROUTE_ALIASES[pathRoute] || pathRoute) : routeFromHash();
   const fallback = defaultRoute();
-  const user = Auth.user();
-  if (user && user.roleKey === 'CLIENT') {
-    return raw.indexOf('client-') === 0 && ROUTES.includes(raw) && canRoute(raw) ? raw : fallback;
-  }
   const route = ROUTES.includes(raw) ? raw : fallback;
   if (canRoute(route)) return route;
   return canRoute(fallback) ? fallback : 'dashboard';
 }
 
-// /dashboard, /dashboard# and /dashboard#/dashboard all mean the same panel.
-// Write the resolved route into the hash so the address always names the panel.
-function canonicalHash() {
+function canonicalPath() {
   const route = currentRoute();
-  const raw = (location.hash || '').replace(/^#\/?/, '').split('?')[0];
-  if (raw !== route) {
-    history.replaceState(null, '', location.pathname + location.search + '#/' + route);
-  }
+  const path = routePath(route);
+  if (location.pathname !== path || location.hash) history.replaceState(null, '', path);
   return route;
 }
 
 function go(route) {
+  route = ROUTE_ALIASES[route] || route;
   if (!canRoute(route)) {
     toast('Your role does not have access to that page.', 'warn');
     return;
@@ -431,25 +437,36 @@ function go(route) {
   hideSearch();
   hideNotif();
   hideUserMenu();
-  if (location.hash === '#/' + route) render();
-  else location.hash = '#/' + route;
+  const path = routePath(route);
+  if (location.pathname !== path || location.hash) history.pushState(null, '', path);
+  canonicalPath();
+  render();
+  window.dispatchEvent(new Event('workspace-route-change'));
+}
+
+function routeFromAdminHref(pathname) {
+  const cleanPath = pathname.replace(/\/+$/, '') || '/admin';
+  if (cleanPath === '/admin') return 'dashboard';
+  if (cleanPath === '/admin/users') return 'office-staff';
+  if (cleanPath === '/admin/settings') return 'office-settings';
+  if (!cleanPath.startsWith('/admin/')) return '';
+  return ROUTE_ALIASES[cleanPath.slice('/admin/'.length).replace(/\//g, '-')] ||
+    cleanPath.slice('/admin/'.length).replace(/\//g, '-');
 }
 
 function viewOffice(route) {
   const panel = OFFICE_ROUTES[route] || 'overview';
   const title = (PAGE_META[route] || PAGE_META['office-overview'])[1];
-  return '<iframe class="office-embed-frame" src="/office/embed?panel=' + panel + '" title="' + title + '" loading="eager" allow="camera; clipboard-write"></iframe>';
+  return '<iframe class="office-embed-frame" src="/admin/embed?panel=' + panel + '" title="' + title + '" loading="eager" allow="camera; clipboard-write"></iframe>';
 }
 
 function render() {
   state.route = currentRoute();
   const route = state.route;
   let html = '';
-  if (route === 'dashboard') html = viewDashboard();
+  if (route === 'dashboard') html = viewOffice(route);
   else if (route === 'tasks') html = viewTasks();
   else if (route === 'reports') html = viewReports();
-  else if (route === 'map') html = viewMap();
-  else if (route === 'plots') html = viewPlots();
   else if (route === 'leads') html = viewLeads();
   else if (route === 'sales') html = viewSales();
   else if (route === 'receipts') html = viewReceipts();
@@ -464,18 +481,17 @@ function render() {
   else if (route === 'finance-audit') html = viewFinanceAudit();
   else if (route === 'staff') html = viewStaff();
   else if (route === 'documents') html = viewEstateDocuments();
-  else if (route === 'maintenance') html = viewMaintenance();
   else if (route === 'settings') html = viewSettings();
   else if (route.indexOf('office-') === 0 || route.indexOf('client-') === 0) html = viewOffice(route);
 
   const view = $('#view');
-  view.classList.toggle('office-view', route.indexOf('office-') === 0 || route.indexOf('client-') === 0);
+  view.classList.toggle('office-view', route === 'dashboard' || route.indexOf('office-') === 0);
   view.innerHTML = html;
   if (state.lastRoute !== route) view.scrollTop = 0;
   state.lastRoute = route;
   updateChrome();
   initIcons(view);
-  document.title = 'Land Management System — ' + PAGE_META[route][1];
+  document.title = 'TGNE Solutions — ' + (PAGE_META[route] || PAGE_META.dashboard)[1];
 }
 
 function refresh() {
@@ -556,7 +572,7 @@ function ensureComplaintNavLink() {
   if (!content || content.querySelector('[data-route="complaints"]')) return;
   const link = document.createElement('a');
   link.className = 'nav-item';
-  link.href = '#/complaints';
+  link.href = routePath('complaints');
   link.dataset.route = 'complaints';
   link.setAttribute('role', 'listitem');
   link.innerHTML = '<span class="nav-ico">' + icon('message', 18) + '</span><span class="nav-label">Complaints</span>';
@@ -691,7 +707,7 @@ function enterWorkspace() {
     const recent = S.decoratedSales(data).sort((a, b) => S.parseDate(b.date) - S.parseDate(a.date))[0];
     state.receiptId = recent ? recent.id : null;
   }
-  state.route = canonicalHash();
+  state.route = canonicalPath();
   hideUserMenu();
   render();
 }
@@ -717,8 +733,19 @@ function bindWorkspaceEvents() {
     hideSearch();
     hideNotif();
     hideUserMenu();
-    canonicalHash();
+    const requested = routeFromHash();
+    if (ROUTES.includes(requested) && requested !== state.route) {
+      go(requested);
+      return;
+    }
+    canonicalPath();
     render();
+  });
+  window.addEventListener('popstate', () => {
+    if (!Auth.isAuthenticated()) return;
+    canonicalPath();
+    render();
+    window.dispatchEvent(new Event('workspace-route-change'));
   });
   window.addEventListener('resize', () => {
     if (window.innerWidth > 1024) closeMobileMenu();
@@ -749,6 +776,22 @@ function bindWorkspaceEvents() {
   });
 
   document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href]');
+    if (link) {
+      const href = link.getAttribute('href');
+      if (href.startsWith('#/')) {
+        e.preventDefault();
+        const requested = href.replace(/^#\/?/, '').split('?')[0];
+        go(ROUTE_ALIASES[requested] || requested);
+      } else {
+        const url = new URL(link.href, location.href);
+        if (url.origin === location.origin && (url.pathname === '/admin' || url.pathname.startsWith('/admin/'))) {
+          e.preventDefault();
+          const route = routeFromAdminHref(url.pathname);
+          if (route) go(route);
+        }
+      }
+    }
     if (!e.target.closest('.global-search')) hideSearch();
     if (!e.target.closest('.notif-wrap')) hideNotif();
     if (!e.target.closest('.user-wrap')) hideUserMenu();
@@ -797,6 +840,15 @@ function initApp() {
   }
   Auth.init({
     onLogin: (role) => {
+      const adminRoles = ['SUPER_ADMIN', 'OFFICE_MANAGER', 'ACCOUNTANT', 'SURVEYOR', 'RECEPTIONIST'];
+      if (role.roleKey === 'CLIENT') {
+        window.location.assign('/client');
+        return;
+      }
+      if (!adminRoles.includes(role.roleKey)) {
+        window.location.assign('/');
+        return;
+      }
       enterWorkspace();
       toast('Signed in as ' + role.label + '.');
     },
@@ -808,7 +860,6 @@ function initApp() {
       hideNotif();
       hideUserMenu();
       closeMobileMenu();
-      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
       toast('Signed out.');
     }
   });

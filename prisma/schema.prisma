@@ -95,6 +95,7 @@ model User {
   failedLoginAttempts   Int            @default(0)
   lockoutCount          Int            @default(0)
   lockoutUntil          DateTime?
+  sessionVersion        Int            @default(0)
   lastLoginAt           DateTime?
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt

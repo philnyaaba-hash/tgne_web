@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { resolveDashboardAccess } from '../../../../lib/dashboard-access';
-import { clearSessionCookie, currentUser, isLocalDemoMode, requireSameOrigin } from '../../../../lib/office-auth';
+import { clearSessionCookie, currentUser, invalidateCurrentSession, isLocalDemoMode, requireSameOrigin } from '../../../../lib/office-auth';
 import { canViewPanel, OFFICE_PANELS } from '../../../../lib/office-panels';
 import { isDemoQuickLoginEnabled } from '../../../../lib/demo-accounts';
 
@@ -15,11 +15,17 @@ export async function GET() {
   const officePanels = Object.keys(OFFICE_PANELS).filter((panel) => canViewPanel(user, panel));
   return NextResponse.json(
     { user, access: { ...access, officePanels }, demoQuickLogin },
-    { headers: { 'cache-control': 'no-store' } }
+    { headers: { 'cache-control': 'no-store', pragma: 'no-cache', expires: '0' } }
   );
 }
 
 export async function DELETE(request) {
   if (!requireSameOrigin(request)) return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 });
+  try {
+    await invalidateCurrentSession();
+  } catch (error) {
+    console.error('Session invalidation failed.', error?.message);
+    return NextResponse.json({ error: 'Your session could not be invalidated. Please try again.' }, { status: 503 });
+  }
   return clearSessionCookie(NextResponse.json({ ok: true }));
 }

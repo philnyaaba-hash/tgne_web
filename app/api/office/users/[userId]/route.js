@@ -113,6 +113,12 @@ export async function PATCH(request, { params }) {
     if (others < 1) return NextResponse.json({ error: 'Keep at least one active administrator account.' }, { status: 409 });
   }
 
+  // Any change to a role, an account status or a password must invalidate the
+  // affected account's existing sessions. Without this, a demoted or disabled
+  // user would keep their old privileges until the token expired.
+  const statusChanged = (input.status === 'ACTIVE' || input.status === 'DEACTIVATED') && input.status !== existing.status;
+  const revokeSessions = Boolean(roles) || Boolean(password) || statusChanged;
+
   try {
     const user = await prisma.$transaction(async (tx) => {
       const currentKeys = existing.roles.map(({ role }) => role.key);
@@ -153,7 +159,8 @@ export async function PATCH(request, { params }) {
           status: input.status === 'ACTIVE' || input.status === 'DEACTIVATED' ? input.status : undefined,
           passwordHash: password ? await hash(password, 12) : undefined,
           failedLoginAttempts: password ? 0 : undefined,
-          lockoutUntil: password ? null : undefined
+          lockoutUntil: password ? null : undefined,
+          sessionVersion: revokeSessions ? { increment: 1 } : undefined
         },
         include: USER_INCLUDE
       });

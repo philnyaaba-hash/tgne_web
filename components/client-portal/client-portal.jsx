@@ -1,10 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './client-portal.module.css';
+import { clearCachedUserState } from '../../lib/session-cleanup';
 import {
   CLIENT_DEMO_STORAGE_KEY,
+  clientDemoStorageKey,
   DEMO_ORDERS,
   ORDER_STATUSES,
   SERVICE_TYPES
@@ -15,6 +18,8 @@ const CLIENT_LOCATION = 'Tema, Ghana';
 const NAV_ITEMS = {
   client: [
     { id: 'overview', label: 'Overview', icon: 'grid' },
+    { id: 'profile', label: 'Profile', icon: 'users' },
+    { id: 'settings', label: 'Settings', icon: 'settings' },
     { id: 'new-order', label: 'New order', icon: 'plus' },
     { id: 'orders', label: 'My orders', icon: 'list' },
     { id: 'tracking', label: 'Track an order', icon: 'route' },
@@ -33,6 +38,8 @@ const NAV_ITEMS = {
 
 const PAGE_TITLES = {
   overview: 'Overview',
+  profile: 'Your profile',
+  settings: 'Account settings',
   'new-order': 'Place a new order',
   orders: 'My orders',
   tracking: 'Track an order',
@@ -157,32 +164,57 @@ function OrderTable({ orders, onTrack, admin = false, onStatusChange }) {
   );
 }
 
-export default function ClientPortal({ mode, user }) {
-  const isAdmin = mode === 'admin';
-  const clientName = user?.name || 'Valued Client';
+const CLIENT_PAGE_PATHS = {
+  overview: '/client',
+  profile: '/client/profile',
+  settings: '/client/settings',
+  'new-order': '/client/new-order',
+  orders: '/client/orders',
+  tracking: '/client/tracking',
+  quotes: '/client/quotes',
+  invoices: '/client/invoices',
+  documents: '/client/documents',
+  team: '/client/team',
+  support: '/client/support'
+};
 
-  async function handleLogout() {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
-    } catch {
-      // Ignore network errors; still redirect
-    }
-    window.location.href = '/login';
-  }
+export default function ClientPortal({ mode, user, initialPage = 'overview', initialSelectedId }) {
+  const isAdmin = mode === 'admin';
+  const router = useRouter();
+  const clientName = user?.name || 'Valued Client';
+  const storageKey = clientDemoStorageKey(user?.id);
   const [orders, setOrders] = useState(DEMO_ORDERS);
-  const [page, setPage] = useState('overview');
+  const [page, setPage] = useState(initialPage);
   const [filter, setFilter] = useState('All');
   const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState(DEMO_ORDERS[0].id);
+  const [selectedId, setSelectedId] = useState(initialSelectedId || DEMO_ORDERS[0].id);
   const [notice, setNotice] = useState('');
   const [storageIssue, setStorageIssue] = useState('');
+  const [profile, setProfile] = useState(null);
+  const [profileDraft, setProfileDraft] = useState(null);
+  const [profileError, setProfileError] = useState('');
+  const [profileNotice, setProfileNotice] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [logoutError, setLogoutError] = useState('');
+
+  const navigatePage = (nextPage, orderId) => {
+    setPage(nextPage);
+    setQuery('');
+    if (isAdmin) return;
+    const basePath = CLIENT_PAGE_PATHS[nextPage] || '/client';
+    const path = nextPage === 'tracking' && orderId
+      ? basePath + '?order=' + encodeURIComponent(orderId)
+      : basePath;
+    router.push(path);
+  };
 
   useEffect(() => {
     function loadSavedOrders() {
       try {
-        const saved = window.localStorage.getItem(CLIENT_DEMO_STORAGE_KEY);
+        window.localStorage.removeItem(CLIENT_DEMO_STORAGE_KEY);
+        const saved = storageKey ? window.localStorage.getItem(storageKey) : null;
         if (saved === null) {
-          window.localStorage.setItem(CLIENT_DEMO_STORAGE_KEY, JSON.stringify(DEMO_ORDERS));
+          if (storageKey) window.localStorage.setItem(storageKey, JSON.stringify(DEMO_ORDERS));
           return;
         }
         const parsed = JSON.parse(saved);
@@ -196,7 +228,7 @@ export default function ClientPortal({ mode, user }) {
     }
 
     function handleStorage(event) {
-      if (event.key !== CLIENT_DEMO_STORAGE_KEY) return;
+      if (event.key !== storageKey) return;
       if (event.newValue === null) {
         setOrders(DEMO_ORDERS);
         return;
@@ -215,12 +247,40 @@ export default function ClientPortal({ mode, user }) {
     loadSavedOrders();
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (page !== 'profile') return;
+    let cancelled = false;
+    async function loadProfile() {
+      setProfileError('');
+      try {
+        const response = await fetch('/api/client/workspace', { cache: 'no-store', credentials: 'same-origin' });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Your profile could not be loaded.');
+        if (cancelled) return;
+        const nextProfile = data.profile;
+        setProfile(nextProfile);
+        setProfileDraft({
+          phone: data.user.phone || '',
+          companyName: nextProfile.companyName || '',
+          ghanaCard: nextProfile.ghanaCard || '',
+          address: nextProfile.address || '',
+          region: nextProfile.region || '',
+          city: nextProfile.city || ''
+        });
+      } catch (error) {
+        if (!cancelled) setProfileError(error.message || 'Your profile could not be loaded.');
+      }
+    }
+    loadProfile();
+    return () => { cancelled = true; };
+  }, [page]);
 
   const saveOrders = (nextOrders, message) => {
     setOrders(nextOrders);
     try {
-      window.localStorage.setItem(CLIENT_DEMO_STORAGE_KEY, JSON.stringify(nextOrders));
+      if (storageKey) window.localStorage.setItem(storageKey, JSON.stringify(nextOrders));
       setStorageIssue('');
     } catch {
       setStorageIssue('This browser could not save local demo changes. They will be lost when you leave this page.');
@@ -228,6 +288,48 @@ export default function ClientPortal({ mode, user }) {
     setNotice(message);
     window.setTimeout(() => setNotice(''), 3500);
   };
+
+  async function handleLogout() {
+    setLogoutError('');
+    clearCachedUserState();
+    try {
+      if (storageKey) window.localStorage.removeItem(storageKey);
+    } catch {
+      setStorageIssue('This browser could not clear the local demo data.');
+    }
+    try {
+      const response = await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || 'Your session could not be invalidated.');
+      window.location.assign('/login');
+    } catch (error) {
+      setLogoutError(error.message || 'Sign out could not be completed. Please try again.');
+    }
+  }
+
+  async function saveProfile(event) {
+    event.preventDefault();
+    if (!profileDraft || profileSaving) return;
+    setProfileSaving(true);
+    setProfileError('');
+    setProfileNotice('');
+    try {
+      const response = await fetch('/api/client/profile', {
+        method: 'PATCH',
+        credentials: 'same-origin',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(profileDraft)
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Your profile could not be saved.');
+      setProfile(data.profile);
+      setProfileNotice('Your profile has been updated.');
+    } catch (error) {
+      setProfileError(error.message || 'Your profile could not be saved.');
+    } finally {
+      setProfileSaving(false);
+    }
+  }
 
   const activeOrders = useMemo(() => orders.filter((order) => order.status !== 'Completed'), [orders]);
   const quoteOrders = useMemo(() => orders.filter((order) => order.status === 'Quote issued'), [orders]);
@@ -245,7 +347,7 @@ export default function ClientPortal({ mode, user }) {
 
   const goToOrder = (orderId) => {
     setSelectedId(orderId);
-    setPage('tracking');
+    navigatePage('tracking', orderId);
   };
 
   const updateOrder = (orderId, transform, message) => {
@@ -277,7 +379,7 @@ export default function ClientPortal({ mode, user }) {
             <div className={styles.panel}>
               <div className={styles.panelHeader}>
                 <div><h2>Recent service requests</h2><p>The latest work across your client accounts.</p></div>
-                <button className={styles.textButton} type="button" onClick={() => setPage('orders')}>View all <Icon name="arrow" size={15} /></button>
+                <button className={styles.textButton} type="button" onClick={() => navigatePage('orders')}>View all <Icon name="arrow" size={15} /></button>
               </div>
               <OrderTable orders={orders.slice(0, 4)} onTrack={goToOrder} admin onStatusChange={(id, status) => updateOrder(id, (order) => ({ ...order, status, amount: status === 'Quote issued' && !order.amount ? 3600 : order.amount }), `Order status changed to ${status}.`)} />
             </div>
@@ -305,7 +407,7 @@ export default function ClientPortal({ mode, user }) {
             <h2>Welcome back, {clientName}</h2>
             <p>Keep track of your TGNE work, review quotes and place your next service request.</p>
             <div className={styles.welcomeActions}>
-              <button type="button" className={styles.primaryButton} onClick={() => setPage('new-order')}><Icon name="plus" size={15} /> Place a new order</button>
+              <button type="button" className={styles.primaryButton} onClick={() => navigatePage('new-order')}><Icon name="plus" size={15} /> Place a new order</button>
               <button type="button" className={styles.logoutButton} onClick={handleLogout}>
                 <Icon name="logout" size={14} />
                 Sign out
@@ -327,7 +429,7 @@ export default function ClientPortal({ mode, user }) {
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
               <div><h2>Recent orders</h2><p>Updates from your service requests.</p></div>
-              <button className={styles.textButton} type="button" onClick={() => setPage('orders')}>View all <Icon name="arrow" size={15} /></button>
+              <button className={styles.textButton} type="button" onClick={() => navigatePage('orders')}>View all <Icon name="arrow" size={15} /></button>
             </div>
             <OrderTable orders={orders.slice(0, 4)} onTrack={goToOrder} />
           </div>
@@ -352,13 +454,49 @@ export default function ClientPortal({ mode, user }) {
           amount: 0,
           assignedTo: '',
           paid: false,
-          client: CLIENT_NAME,
+          client: clientName,
           messages: []
         };
         saveOrders([order, ...orders], 'Order submitted. Expect a quote from TGNE within one business day.');
         setSelectedId(order.id);
-        setPage('tracking');
+        navigatePage('tracking', order.id);
       }} />;
+    }
+
+    if (page === 'profile' && !isAdmin) {
+      if (!profileDraft) return <div className={styles.panel} role="status">{profileError || 'Loading your profile…'}</div>;
+      return (
+        <form className={styles.panel} onSubmit={saveProfile}>
+          <div className={styles.panelHeader}><div><h2>Profile information</h2><p>Update the contact details attached to your authenticated account.</p></div></div>
+          <div className={styles.formRow}>
+            <label className={styles.formField}>Name<input value={user?.name || ''} readOnly /></label>
+            <label className={styles.formField}>Email address<input value={user?.email || ''} readOnly /></label>
+          </div>
+          <div className={styles.formRow}>
+            <label className={styles.formField}>Company name<input value={profileDraft.companyName} onChange={(event) => setProfileDraft({ ...profileDraft, companyName: event.target.value })} maxLength={160} /></label>
+            <label className={styles.formField}>Phone number<input value={profileDraft.phone} onChange={(event) => setProfileDraft({ ...profileDraft, phone: event.target.value })} maxLength={40} /></label>
+          </div>
+          <label className={styles.formField}>Ghana Card<input value={profileDraft.ghanaCard} onChange={(event) => setProfileDraft({ ...profileDraft, ghanaCard: event.target.value })} maxLength={40} /></label>
+          <label className={styles.formField}>Address<input value={profileDraft.address} onChange={(event) => setProfileDraft({ ...profileDraft, address: event.target.value })} maxLength={300} /></label>
+          <div className={styles.formRow}>
+            <label className={styles.formField}>Region<input value={profileDraft.region} onChange={(event) => setProfileDraft({ ...profileDraft, region: event.target.value })} maxLength={60} /></label>
+            <label className={styles.formField}>City<input value={profileDraft.city} onChange={(event) => setProfileDraft({ ...profileDraft, city: event.target.value })} maxLength={80} /></label>
+          </div>
+          {profileError && <p className={styles.formError} role="alert">{profileError}</p>}
+          {profileNotice && <p role="status">{profileNotice}</p>}
+          <button className={styles.primaryButton} type="submit" disabled={profileSaving}>{profileSaving ? 'Saving…' : 'Save profile'}</button>
+        </form>
+      );
+    }
+
+    if (page === 'settings' && !isAdmin) {
+      return (
+        <div className={styles.panel}>
+          <div className={styles.panelHeader}><div><h2>Account settings</h2><p>Account identity and contact preferences.</p></div></div>
+          <p>Signed in as <strong>{user?.email}</strong>. Your account role and access are managed by TGNE administrators.</p>
+          <button type="button" className={styles.secondaryButton} onClick={() => navigatePage('profile')}>Manage profile details</button>
+        </div>
+      );
     }
 
     if (page === 'orders') {
@@ -473,23 +611,22 @@ export default function ClientPortal({ mode, user }) {
         <nav className={styles.navigation} aria-label="Dashboard navigation">
           {navItems.map((item) => {
             const count = item.id === 'quotes' ? quoteOrders.length : item.id === 'orders' && isAdmin ? activeOrders.length : 0;
-            return <button type="button" key={item.id} className={`${styles.navItem} ${page === item.id ? styles.navActive : ''}`} aria-current={page === item.id ? 'page' : undefined} onClick={() => { setPage(item.id); setQuery(''); }}>
+            return <button type="button" key={item.id} className={`${styles.navItem} ${page === item.id ? styles.navActive : ''}`} aria-current={page === item.id ? 'page' : undefined} onClick={() => navigatePage(item.id)}>
               <Icon name={item.icon} size={18} /><span>{item.label}</span>{count > 0 && <span className={styles.navCount}>{count}</span>}
             </button>;
           })}
         </nav>
         <div className={styles.sidebarFooter}>
-          <div className={styles.userCard}><span className={styles.avatar}>{isAdmin ? 'KA' : 'VF'}</span><span><strong>{isAdmin ? 'Kofi Asante' : CLIENT_NAME}</strong><small>{isAdmin ? 'Business owner' : CLIENT_LOCATION}</small></span></div>
-          <a className={styles.switchLink} href={isAdmin ? '/client' : '/admin'}><Icon name="logout" size={16} />{isAdmin ? 'Open client demo' : 'Open admin demo'}</a>
+          <div className={styles.userCard}><span className={styles.avatar}>{isAdmin ? 'KA' : clientName.slice(0, 2).toUpperCase()}</span><span><strong>{isAdmin ? 'Kofi Asante' : clientName}</strong><small>{isAdmin ? 'Business owner' : CLIENT_LOCATION}</small></span></div>
         </div>
       </aside>
       <main className={styles.main}>
         <header className={styles.topbar}>
           <div className={styles.breadcrumb}><span>TGNE</span><span className={styles.breadcrumbDivider}>/</span><strong>{PAGE_TITLES[page] || 'Overview'}</strong></div>
           <div className={styles.topbarActions}>
-            {!isAdmin && <label className={styles.searchBox}><Icon name="search" size={17} /><span className={styles.srOnly}>Search orders</span><input value={query} onChange={(event) => { setQuery(event.target.value); setPage('orders'); }} placeholder="Search orders…" /></label>}
+            {!isAdmin && <label className={styles.searchBox}><Icon name="search" size={17} /><span className={styles.srOnly}>Search orders</span><input value={query} onChange={(event) => { setQuery(event.target.value); navigatePage('orders'); }} placeholder="Search orders…" /></label>}
             <span className={styles.demoBadge}>LOCAL DEMO</span>
-            <div className={styles.profileAvatar} aria-label={isAdmin ? 'Kofi Asante' : 'Volta Foods'}>{isAdmin ? 'KA' : 'VF'}</div>
+            <div className={styles.profileAvatar} aria-label={isAdmin ? 'Kofi Asante' : clientName}>{isAdmin ? 'KA' : clientName.slice(0, 2).toUpperCase()}</div>
             <button type="button" className={styles.logoutButton} onClick={handleLogout}>
               <Icon name="logout" size={15} /> Sign out
             </button>
@@ -497,13 +634,14 @@ export default function ClientPortal({ mode, user }) {
         </header>
         <div className={styles.content}>
           <div className={styles.pageIntro}>
-            <div><h1>{PAGE_TITLES[page] || 'Overview'}</h1><p>{isAdmin ? 'Manage requests and keep client work moving.' : `${CLIENT_NAME} · ${CLIENT_LOCATION}`}</p></div>
-            {isAdmin && page === 'overview' ? <button className={styles.secondaryButton} type="button" onClick={() => setPage('orders')}><Icon name="list" size={16} /> View requests</button> : null}
+            <div><h1>{PAGE_TITLES[page] || 'Overview'}</h1><p>{isAdmin ? 'Manage requests and keep client work moving.' : `${profile?.companyName || clientName} · ${profile?.city || profile?.region || CLIENT_LOCATION}`}</p></div>
+            {isAdmin && page === 'overview' ? <button className={styles.secondaryButton} type="button" onClick={() => navigatePage('orders')}><Icon name="list" size={16} /> View requests</button> : null}
           </div>
           {storageIssue && <p className={styles.storageNotice} role="status">{storageIssue}</p>}
+          {logoutError && <p className={styles.formError} role="alert">{logoutError}</p>}
           {notice && <div className={styles.toast} role="status"><Icon name="check" size={17} />{notice}<button type="button" aria-label="Dismiss message" onClick={() => setNotice('')}>×</button></div>}
           {renderPage()}
-          <footer className={styles.footer}><span>© {new Date().getFullYear()} TGNE Solutions</span><span>Local demo data is saved in this browser.</span></footer>
+          <footer className={styles.footer}><span>© {new Date().getFullYear()} TGNE Solutions</span><span>Demo changes are scoped to this signed-in account.</span></footer>
         </div>
       </main>
     </div>

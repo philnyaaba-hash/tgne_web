@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 
 export default function OfflineBanner() {
   const pathname = usePathname();
-  const onDashboard = pathname === '/dashboard' || pathname.startsWith('/dashboard/');
+  const onDashboard = pathname === '/admin' || pathname.startsWith('/admin/');
   const [offline, setOffline] = useState(false);
   const [updateReady, setUpdateReady] = useState(false);
   const registrationRef = useRef(null);

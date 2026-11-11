@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createSession, demoSessionUserId, isLocalDemoMode, recordAudit, requireSameOrigin, setSessionCookie } from '../../../../lib/office-auth';
+import { createSession, demoSessionUserId, isLocalDemoMode, recordAudit, requireSameOrigin, setSessionCookie, withDbTimeout } from '../../../../lib/office-auth';
+import { workspacePathForUser } from '../../../../lib/auth-redirect';
 import { prisma } from '../../../../lib/prisma';
 import { checkRateLimit, clientIp } from '../../../../lib/rate-limit.mjs';
 import { demoAccountFor, isDemoQuickLoginEnabled } from '../../../../lib/demo-accounts';
@@ -46,24 +47,36 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Unknown demo role.' }, { status: 400 });
   }
 
+  // One-click role sign-in is only acceptable when there is no database to
+  // authenticate against. With a database configured the account's stored
+  // roles must be verified, even in development.
   if (localDemo) {
-    const token = await createSession(demoSessionUserId(demo.role), { demo: true });
+    const token = await createSession(demoSessionUserId(demo.role), { demo: true, roleKeys: [demo.role] });
     const response = NextResponse.json(
       {
         ok: true,
         demo: true,
         user: { id: demoSessionUserId(demo.role), name: demo.name, email: demo.email },
-        role: demo.role
+        role: demo.role,
+        redirectTo: workspacePathForUser({ roles: [{ key: demo.role }] })
       },
       { headers: { 'cache-control': 'no-store' } }
     );
     return setSessionCookie(response, token);
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: demo.email },
-    include: { roles: { include: { role: { select: { key: true } } } } }
-  });
+  let user;
+  try {
+    user = await withDbTimeout(() => prisma.user.findUnique({
+      where: { email: demo.email },
+      include: { roles: { include: { role: { select: { key: true } } } } }
+    }));
+  } catch {
+    return NextResponse.json(
+      { error: 'The workspace database is currently unavailable. Try again shortly.' },
+      { status: 503, headers: { 'cache-control': 'no-store' } }
+    );
+  }
   if (!user || user.status !== 'ACTIVE') {
     return NextResponse.json(
       { error: 'Demo account is not seeded. Run npm run seed:demo.' },
@@ -78,15 +91,25 @@ export async function POST(request) {
   }
 
   const now = new Date();
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { lastLoginAt: now, failedLoginAttempts: 0, lockoutUntil: null }
-  });
-  await recordAudit(prisma, user.id, 'auth.quick_login', 'User', user.id, { role: demo.role, demo: true });
+  try {
+    await withDbTimeout(() => prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: now, failedLoginAttempts: 0, lockoutUntil: null }
+    }));
+  } catch {
+    // Keep the demo session alive even if the database write is briefly unavailable.
+  }
+  await recordAudit(prisma, user.id, 'auth.quick_login', 'User', user.id, { role: demo.role, demo: true }).catch(() => {});
 
-  const token = await createSession(user.id);
+  const roleKeys = user.roles.map((entry) => entry.role.key);
+  const token = await createSession(user.id, { sessionVersion: user.sessionVersion, roleKeys });
   const response = NextResponse.json(
-    { ok: true, user: { id: user.id, name: user.name, email: user.email }, role: demo.role },
+    {
+      ok: true,
+      user: { id: user.id, name: user.name, email: user.email },
+      role: demo.role,
+      redirectTo: workspacePathForUser({ roles: roleKeys.map((key) => ({ key })) })
+    },
     { headers: { 'cache-control': 'no-store' } }
   );
   return setSessionCookie(response, token);

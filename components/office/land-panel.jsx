@@ -417,7 +417,7 @@ export default function LandPanel({ notify, fail }) {
             <Panel
               title="Accounts posting"
               subtitle="Confirming a request raises an invoice. Completing it records the payment and settles the invoice. Both are matched to the reservation reference."
-              action={<a className="office-button secondary small" href="/dashboard#/office-finance" target="_top">Finance desk</a>}
+              action={<a className="office-button secondary small" href="/admin/office-finance" target="_top">Finance desk</a>}
             >
               <div className="land-pipeline-accounts">
                 <div><span>Invoiced</span><strong>{formatGhs(pipeline.accounts.invoiced)}</strong></div>

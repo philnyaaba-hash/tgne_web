@@ -16,11 +16,15 @@ function bytes(values) {
 
 test('client references use year and a human-safe token', async () => {
   const { clientCode, resaleReference, serviceReference } = await load();
+  const { clientDemoStorageKey } = await import('../lib/client-demo-data.js');
   const date = new Date('2026-05-10T12:00:00Z');
   assert.equal(clientCode(date, bytes([0, 1, 2, 3, 4, 5])), 'CL-2026-234567');
   assert.equal(resaleReference(date, bytes([5, 4, 3, 2, 1, 0])), 'RS-2026-765432');
   assert.equal(serviceReference(date, bytes([0, 0, 0, 0, 0, 0])), 'SV-2026-222222');
   assert.match(resaleReference(), /^RS-\d{4}-[2-9A-HJ-NP-Z]{6}$/);
+  assert.notEqual(clientDemoStorageKey('client-a'), clientDemoStorageKey('client-b'));
+  assert.equal(clientDemoStorageKey('client/a'), 'tgne-service-portal-demo-v1:client%2Fa');
+  assert.equal(clientDemoStorageKey(''), '');
 });
 
 test('service references map to deterministic service invoices', async () => {

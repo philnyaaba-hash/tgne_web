@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 const PAGES = ['/', '/about', '/services', '/shop', '/gallery', '/case-studies', '/blog', '/contact', '/faq', '/how-it-works', '/legal', '/accessibility'];
-const SKIP = [/^\/client/, /^\/office/, /^\/dashboard/, /^\/api\//, /^\/login/];
+const SKIP = [/^\/admin/, /^\/client/, /^\/office/, /^\/dashboard/, /^\/api\//, /^\/login/];
 
 test('public pages only link to reachable internal pages', async ({ page, request }) => {
   test.setTimeout(120_000);

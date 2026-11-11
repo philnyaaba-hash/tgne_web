@@ -4,15 +4,24 @@ import Icon from './icons';
 import MobileMenu from './mobile-menu';
 import SiteNav from './site-nav';
 import { LAND_SITE } from '../../lib/land-site';
+import { isAdminUser, workspacePathForUser } from '../../lib/auth-redirect';
 
-const STAFF_ROLES = ['SUPER_ADMIN', 'OFFICE_MANAGER', 'ACCOUNTANT', 'SURVEYOR', 'RECEPTIONIST'];
-
-function isStaff(user) {
-  return user && user.roles.some((r) => STAFF_ROLES.includes(r.key));
+function initialsFor(name) {
+  const parts = String(name || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!parts.length) return 'TG';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 export default function SiteHeader({ user }) {
-  const isStaffUser = isStaff(user);
+  const isStaffUser = isAdminUser(user);
+  const workspacePath = user ? workspacePathForUser(user) : '/login';
+  const workspaceLabel = user
+    ? (isStaffUser ? 'TGNE Workspace' : 'Client Portal')
+    : 'Client Login';
 
   const navLinks = [
     { href: '/', label: 'Home', children: [{ href: '/about', label: 'About Us' }] },
@@ -25,9 +34,8 @@ export default function SiteHeader({ user }) {
   ];
 
   if (user) {
-    if (isStaffUser) {
-      navLinks.push({ href: '/dashboard', label: 'Dashboard' });
-    } else {
+    // Staff reach the workspace straight after sign-in, so the public menu stays clean.
+    if (!isStaffUser) {
       navLinks.push({ href: '/client', label: 'Client Portal' });
     }
   } else {
@@ -47,14 +55,28 @@ export default function SiteHeader({ user }) {
           </span>
         </Link>
 
-        <SiteNav links={navLinks} user={user} />
+        <SiteNav links={navLinks} />
 
         <div className="ls-header-actions">
+          {user ? (
+            <Link href={workspacePath} className="ls-user-chip" aria-label={`Signed in as ${user.name}. Open ${workspaceLabel}.`}>
+              <span className="ls-user-avatar" aria-hidden="true">{initialsFor(user.name)}</span>
+              <span className="ls-user-meta">
+                <strong>{user.name}</strong>
+                <small>{workspaceLabel}</small>
+              </span>
+            </Link>
+          ) : (
+            <Link href="/login" className="ls-button ls-button-primary ls-header-cta">
+              Client Login
+              <Icon name="arrowRight" size={15} />
+            </Link>
+          )}
           <a href={'tel:' + LAND_SITE.phone.replace(/[^\d+]/g, '')} className="ls-button ls-button-primary ls-header-cta">
             Call Us
             <Icon name="arrowRight" size={15} />
           </a>
-          <MobileMenu links={navLinks} user={user} />
+          <MobileMenu links={navLinks} signedIn={Boolean(user)} />
         </div>
       </div>
     </header>

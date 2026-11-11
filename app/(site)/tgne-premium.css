@@ -131,6 +131,55 @@
 .ls-button { border-radius: 7px; }
 .ls-button-primary { background: var(--ls-deep); box-shadow: 0 8px 20px rgba(11, 37, 39, .16); }
 .ls-button-primary:hover { background: #1b5955; }
+
+/* Signed-in profile chip in the header */
+.ls-user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 6px;
+  border: 1px solid var(--ls-line);
+  border-radius: 999px;
+  background: var(--ls-paper);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+.ls-user-chip:hover { border-color: var(--ls-green); box-shadow: 0 8px 18px rgba(11, 37, 39, .10); }
+.ls-user-chip:focus-visible { outline: 2px solid var(--ls-green); outline-offset: 3px; }
+.ls-user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ls-deep);
+  color: var(--ls-on-green);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: .02em;
+}
+.ls-user-meta { display: flex; flex-direction: column; line-height: 1.25; text-align: left; }
+.ls-user-meta strong { font-size: 13px; font-weight: 700; color: var(--ls-ink); }
+.ls-user-meta small { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ls-ink-soft); }
+.ls-mobile-signout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--ls-line);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ls-ink);
+  font-size: 13px;
+  font-weight: 620;
+  cursor: pointer;
+}
+.ls-mobile-signout:hover { border-color: var(--ls-green); color: var(--ls-green); }
 .ls-eyebrow { letter-spacing: .19em; }
 .ls-mobile-menu {
   display: none;
@@ -888,8 +937,23 @@
 }
 
 @media (max-width: 940px) {
-  .ls-header-actions { margin-left: auto; }
-  .ls-mobile-menu > summary { display: inline-flex; }
+  .ls-header-actions { margin-left: auto; padding-right: 54px; }
+  /* The drawer wrapper must stay in the header flow; only its panel is fixed. */
+  .ls-mobile-menu {
+    display: block;
+    position: static;
+    inset: auto;
+    background: transparent;
+  }
+  .ls-mobile-menu > summary {
+    display: inline-flex;
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 62;
+  }
+  .ls-user-chip { padding: 4px; gap: 0; }
+  .ls-user-meta { display: none; }
   .ls-menu-toggle { cursor: pointer; }
   .ls-menu-toggle:focus-visible { outline: 2px solid var(--ls-green); outline-offset: 3px; }
   .ls-mobile-menu .ls-mobile-nav .ls-button { color: var(--ls-on-green); }

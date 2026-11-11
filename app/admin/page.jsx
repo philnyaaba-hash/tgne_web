@@ -1,4 +1,4 @@
-import ClientPortal from '../../components/client-portal/client-portal';
+import AdminWorkspace from '../../components/admin-workspace';
 
 export const metadata = {
   title: 'Admin dashboard | TGNE Solutions',
@@ -6,5 +6,5 @@ export const metadata = {
 };
 
 export default function AdminPage() {
-  return <ClientPortal mode="admin" />;
+  return <AdminWorkspace />;
 }

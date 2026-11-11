@@ -23,6 +23,14 @@ test('super administrators keep wildcard workspace access', () => {
   assert.equal(access.visual, 'admin');
 });
 
+test('plain administrators get the same wildcard workspace access', () => {
+  // ADMIN is an alias of SUPER_ADMIN, so it resolves to the same definition.
+  const access = resolveDashboardAccess(['ADMIN']);
+  assert.equal(access.key, 'SUPER_ADMIN');
+  assert.deepEqual(access.permissions, ['*']);
+  assert.equal(access.visual, 'admin');
+});
+
 test('receptionists get visitor panels but no restricted office tools', () => {
   const user = { permissions: ['visitors.view', 'visitors.register', 'organization.view'] };
   assert.equal(canViewPanel(user, 'visitors'), true);
@@ -54,18 +62,16 @@ test('the land storefront panel follows the land.view permission', () => {
   assert.ok(manager.permissions.includes('land.manage'));
 });
 
-test('client-only accounts reach client panels and nothing else', () => {
+test('client-only accounts never reach an office panel', () => {
+  // The client workspace now lives at /client and is no longer part of the
+  // staff panel registry, so a client account must be denied every office panel.
   const client = {
     permissions: ['client.portal', 'client.resell', 'client.services', 'client.documents', 'client.payments'],
     roles: [{ key: 'CLIENT' }]
   };
-  assert.equal(canViewPanel(client, 'client-overview'), true);
-  assert.equal(canViewPanel(client, 'client-resale'), true);
-  assert.equal(canViewPanel(client, 'client-payments'), true);
-  assert.equal(canViewPanel(client, 'overview'), false);
-  assert.equal(canViewPanel(client, 'attendance'), false);
-  assert.equal(canViewPanel(client, 'clients'), false);
-  assert.equal(canViewPanel(client, 'finance'), false);
+  for (const panel of Object.keys(OFFICE_PANELS)) {
+    assert.equal(canViewPanel(client, panel), false, panel);
+  }
 
   const manager = {
     permissions: ['land.view', 'client.view', 'client.manage'],

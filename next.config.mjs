@@ -61,6 +61,15 @@ const nextConfig = {
       { source: '/land/:path*', destination: '/:path*', permanent: true },
       { source: '/listings', destination: '/services', permanent: true },
       { source: '/listings/:path*', destination: '/services', permanent: true },
+      // Canonical workspace URLs. Role-specific entry points are /admin and
+      // /client; the old dashboard/portal aliases are kept working.
+      { source: '/admin/dashboard', destination: '/admin', permanent: false },
+      { source: '/admin/dashboard/:path*', destination: '/admin', permanent: false },
+      { source: '/client/dashboard', destination: '/client', permanent: false },
+      { source: '/client/dashboard/:path*', destination: '/client', permanent: false },
+      { source: '/client-portal', destination: '/client', permanent: false },
+      { source: '/client-portal/:path*', destination: '/client', permanent: false },
+      { source: '/portal', destination: '/client', permanent: false },
       { source: '/track', destination: '/contact', permanent: true },
       { source: '/orders/:path*', destination: '/contact', permanent: true },
       { source: '/reserve/:path*', destination: '/contact', permanent: true }

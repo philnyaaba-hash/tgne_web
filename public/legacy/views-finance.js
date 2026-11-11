@@ -94,7 +94,7 @@ function financeRange() {
 function financeTabs(active) {
   return '<div class="finance-tabs" role="navigation" aria-label="Finance sections">' +
     FINANCE_TABS.map(([route, label]) =>
-      '<a href="#/' + route + '" class="' + (active === route ? 'active' : '') + '"' + (active === route ? ' aria-current="page"' : '') + '>' + esc(label) + '</a>'
+      '<a href="' + routePath(route) + '" class="' + (active === route ? 'active' : '') + '"' + (active === route ? ' aria-current="page"' : '') + '>' + esc(label) + '</a>'
     ).join('') + '</div>';
 }
 
@@ -226,7 +226,7 @@ function viewFinanceOverview() {
       '</section>' +
     '</div>' +
     '<section class="card finance-recent-card"><div class="accounting-section-head"><div><h3>Recent journal entries</h3><p>Latest postings across sales, receipts, expenses and adjustments.</p></div>' +
-      '<a class="btn btn-ghost btn-sm" href="#/finance-journals">' + icon('arrowRight', 13) + ' All journals</a></div>' +
+      '<a class="btn btn-ghost btn-sm" href="/admin/finance-journals">' + icon('arrowRight', 13) + ' All journals</a></div>' +
       financeRecentJournalsHTML(ledger) +
     '</section>' +
     (issues.length ? '<section class="card finance-issues"><div class="accounting-section-head"><div><h3>Integrity check</h3><p>These items need review before relying on the statements.</p></div><span class="badge sold">' + issues.length + ' issue' + (issues.length === 1 ? '' : 's') + '</span></div><ul class="finance-issue-list">' + issues.map((issue) => '<li>' + esc(issue) + '</li>').join('') + '</ul></section>' : '') +

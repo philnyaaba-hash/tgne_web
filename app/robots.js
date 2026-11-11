@@ -6,7 +6,7 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/office', '/dashboard', '/client', '/login', '/offline', '/track', '/listings', '/orders', '/reserve']
+        disallow: ['/api/', '/office', '/dashboard', '/admin', '/client', '/login', '/offline', '/track', '/listings', '/orders', '/reserve']
       }
     ],
     sitemap: absoluteSiteUrl('/sitemap.xml'),

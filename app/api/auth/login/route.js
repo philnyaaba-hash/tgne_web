@@ -1,8 +1,11 @@
 import { compare } from 'bcryptjs';
 import { NextResponse } from 'next/server';
-import { createSession, recordAudit, requireSameOrigin, setSessionCookie } from '../../../../lib/office-auth';
+import { createSession, demoSessionUserId, isLocalDemoMode, recordAudit, requireSameOrigin, setSessionCookie, withDbTimeout } from '../../../../lib/office-auth';
+import { workspacePathForUser } from '../../../../lib/auth-redirect';
+import { accessClassForRoles } from '../../../../lib/roles';
 import { prisma } from '../../../../lib/prisma';
 import { checkRateLimit, clientIp } from '../../../../lib/rate-limit.mjs';
+import { demoAccountByEmail } from '../../../../lib/demo-accounts';
 
 export const runtime = 'nodejs';
 
@@ -60,7 +63,35 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Enter a valid email address and password.' }, { status: 400 });
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  // Local demo accounts only exist when there is no database at all. When a
+  // database is configured, the stored password hash and stored role are the
+  // only source of truth, so a hardcoded demo credential can never shadow or
+  // re-route a real account.
+  const demoAccount = isLocalDemoMode() ? demoAccountByEmail(email) : null;
+  if (demoAccount && demoAccount.password === password) {
+    const roleKeys = [demoAccount.role];
+    const token = await createSession(demoSessionUserId(demoAccount.role), { demo: true, roleKeys });
+    const response = NextResponse.json(
+      {
+        ok: true,
+        user: { id: demoSessionUserId(demoAccount.role), name: demoAccount.name, email: demoAccount.email },
+        accessClass: accessClassForRoles(roleKeys),
+        redirectTo: workspacePathForUser({ roles: [{ key: demoAccount.role }] })
+      },
+      { headers: { 'cache-control': 'no-store' } }
+    );
+    return setSessionCookie(response, token);
+  }
+
+  let user;
+  try {
+    user = await withDbTimeout(() => prisma.user.findUnique({
+      where: { email },
+      include: { roles: { include: { role: { select: { key: true } } } } }
+    }));
+  } catch {
+    user = null;
+  }
   const now = new Date();
   if (!user) {
     await compare(password, DUMMY_HASH);
@@ -89,14 +120,18 @@ export async function POST(request) {
       lockoutCount += 1;
       lockoutUntil = new Date(now.getTime() + lockoutDurationMs(lockoutCount));
     }
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        failedLoginAttempts: locked ? 0 : attempts,
-        lockoutCount,
-        lockoutUntil
-      }
-    });
+    try {
+      await withDbTimeout(() => prisma.user.update({
+        where: { id: user.id },
+        data: {
+          failedLoginAttempts: locked ? 0 : attempts,
+          lockoutCount,
+          lockoutUntil
+        }
+      }));
+    } catch {
+      // Best-effort lockout update: fail closed without exposing the database issue.
+    }
     await audit(user.id, 'auth.sign_in_failed', user.id, { email, attempts, locked });
     if (locked) {
       await audit(user.id, 'auth.lockout', user.id, { email, minutes: Math.round((lockoutUntil - now) / 60_000) });
@@ -111,14 +146,28 @@ export async function POST(request) {
     return unauthorized();
   }
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data: { failedLoginAttempts: 0, lockoutCount: 0, lockoutUntil: null, lastLoginAt: now }
-  });
+  try {
+    await withDbTimeout(() => prisma.user.update({
+      where: { id: user.id },
+      data: { failedLoginAttempts: 0, lockoutCount: 0, lockoutUntil: null, lastLoginAt: now }
+    }));
+  } catch {
+    // The session can still be created if the database is briefly unavailable.
+  }
   await audit(user.id, 'auth.sign_in', user.id, {});
-  const token = await createSession(user.id);
+  // The workspace is decided here, from the stored role rows, and is also
+  // recorded in the signed token so the middleware can route the request
+  // without trusting anything the browser sent.
+  const roleKeys = user.roles.map((entry) => entry.role.key);
+  const accessClass = accessClassForRoles(roleKeys);
+  const token = await createSession(user.id, { sessionVersion: user.sessionVersion, roleKeys });
   const response = NextResponse.json(
-    { ok: true, user: { id: user.id, name: user.name, email: user.email } },
+    {
+      ok: true,
+      user: { id: user.id, name: user.name, email: user.email },
+      accessClass,
+      redirectTo: workspacePathForUser({ roles: roleKeys.map((key) => ({ key })) })
+    },
     { headers: { 'cache-control': 'no-store' } }
   );
   return setSessionCookie(response, token);
