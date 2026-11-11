@@ -33,7 +33,7 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
     "@prisma/adapter-neon": "^6.19.3",
-    "@prisma/client": "^6.19.3",
+    "@prisma/client": "^7.10.1",
     "@zxing/browser": "^0.2.1",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.15",
