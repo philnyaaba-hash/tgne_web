@@ -7,11 +7,13 @@ const { join } = require('node:path');
 
 let gallery;
 let shop;
+let homeSlides;
 
 async function load() {
   if (!gallery) gallery = await import('../lib/tgne-gallery.js');
   if (!shop) shop = await import('../lib/tgne-shop.js');
-  return { ...gallery, ...shop };
+  if (!homeSlides) homeSlides = await import('../lib/tgne-home-slides.js');
+  return { ...gallery, ...shop, ...homeSlides };
 }
 
 test('homepage slideshow includes every portfolio image', async () => {
@@ -26,6 +28,25 @@ test('homepage slideshow includes every portfolio image', async () => {
     assert.ok(item.title);
     assert.ok(item.category);
     assert.ok(existsSync(join(process.cwd(), 'public', item.src.slice(1))));
+  }
+});
+
+test('homepage slideshow contains only the four configured hero images', async () => {
+  const { TGNE_HOME_SLIDES } = await load();
+  const expectedSources = [
+    'https://res.cloudinary.com/z43ds8bn/image/upload/v1794397377/Smiling_Tone_Solutions_Brand_Ambassador.png',
+    'https://res.cloudinary.com/z43ds8bn/image/upload/v1794397790/TGNE_Solutions_Courier_Parcel_Delivery_Scene.png',
+    'https://res.cloudinary.com/ea91sdts/image/upload/v1794174711/TGNE-Creative-Business-Design-Promotion.jpg',
+    'https://res.cloudinary.com/ea91sdts/image/upload/v1794174770/TGNE-Software-Development-Branding.jpg'
+  ];
+
+  assert.equal(TGNE_HOME_SLIDES.length, 4);
+  assert.deepEqual(TGNE_HOME_SLIDES.map((slide) => slide.src), expectedSources);
+  assert.equal(TGNE_HOME_SLIDES[0].category, "Let's work together");
+  assert.equal(TGNE_HOME_SLIDES[0].title, "Ready to grow your business? Let's talk.");
+  for (const slide of TGNE_HOME_SLIDES) {
+    assert.ok(slide.title);
+    assert.ok(slide.category);
   }
 });
 

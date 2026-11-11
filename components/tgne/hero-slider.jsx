@@ -40,6 +40,7 @@ export default function HeroSlider({ slides }) {
           fill
           priority={activeIndex === 0}
           sizes="(max-width: 820px) 100vw, 52vw"
+          unoptimized={/^https?:\/\//.test(activeSlide.src)}
           className="tgne-slider-image"
         />
         <div className="tgne-slider-caption">

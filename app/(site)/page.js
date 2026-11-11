@@ -5,7 +5,7 @@ import HeroSlider from '../../components/tgne/hero-slider';
 import { LAND_SITE } from '../../lib/land-site';
 import { TGNE_SHOP_ITEMS } from '../../lib/tgne-shop';
 import { TGNE_SERVICES } from '../../lib/tgne-services';
-import { TGNE_GALLERY_ITEMS } from '../../lib/tgne-gallery';
+import { TGNE_HOME_SLIDES } from '../../lib/tgne-home-slides';
 import { getFeaturedCaseStudies } from '../../lib/tgne-case-studies';
 import { formatPostDate, getLatestPosts } from '../../lib/tgne-blog';
 import { createPageMetadata } from '../../lib/site-metadata';
@@ -86,7 +86,7 @@ export default function TgnesolutionsHomePage() {
             </div>
           </div>
 
-          <HeroSlider slides={TGNE_GALLERY_ITEMS} />
+          <HeroSlider slides={TGNE_HOME_SLIDES} />
         </div>
       </section>
 
