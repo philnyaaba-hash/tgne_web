@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { clearCachedUserState } from '../lib/session-cleanup';
 
-export default function WorkspaceLogoutButton() {
+export default function WorkspaceLogoutButton({ className = '' }) {
   const [error, setError] = useState('');
 
   async function handleLogout() {
@@ -20,28 +20,14 @@ export default function WorkspaceLogoutButton() {
   }
 
   return (
-    <div className="dashboard-logout-bar" style={{ marginBottom: 16 }}>
-      {error && <p role="alert">{error}</p>}
+    <div className={className}>
+      {error && <p className="office-error" role="alert">{error}</p>}
       <button
         type="button"
         onClick={handleLogout}
-        className="dashboard-logout-btn"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '8px 16px',
-          borderRadius: 6,
-          border: '1px solid var(--ls-line)',
-          background: 'transparent',
-          color: 'var(--ls-ink)',
-          fontSize: 13,
-          fontWeight: 600,
-          cursor: 'pointer',
-          transition: 'background-color .15s ease'
-        }}
+        className="office-button secondary"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M10 17l5-5-5-5M15 12H3" /><path d="M12 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" />
         </svg>
         Sign out

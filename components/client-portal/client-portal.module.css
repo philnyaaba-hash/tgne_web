@@ -89,25 +89,29 @@
 .welcomeStats span { display: block; margin-top: 6px; color: #c0d5c7; font-size: 11px; }
 .welcomeDate { color: var(--portal-muted); font-size: 12px; }
 .welcomeActions { display: flex; gap: 10px; margin-top: 12px; }
-.welcomeActions .logoutButton {
-  padding: 7px 14px;
-  border: 1px solid var(--ls-line);
-  border-radius: 6px;
-  background: var(--portal-surface);
-  color: var(--portal-ink);
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
+.topbarActions .logoutButton {
+  display: inline-flex;
+  min-height: 36px;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 13px;
+  border: 1px solid #d5e2d9;
+  border-radius: 999px;
+  background: var(--portal-surface);
+  color: #28523a;
+  font-size: 12px;
+  font-weight: 650;
   cursor: pointer;
-  transition: background-color .15s ease, border-color .15s ease;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
-.welcomeActions .logoutButton:hover {
+.topbarActions .logoutButton:hover:not(:disabled) {
   background: var(--portal-surface-soft);
-  border-color: #b6c8bc;
+  border-color: #a9c5b2;
+  color: #173c26;
 }
-.welcomeActions .logoutButton svg { width: 14px; height: 14px; flex-shrink: 0; }
+.topbarActions .logoutButton:disabled { cursor: wait; opacity: .7; }
+.topbarActions .logoutButton svg { width: 15px; height: 15px; flex-shrink: 0; }
 .primaryButton, .secondaryButton { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; padding: 8px 13px; border: 1px solid transparent; border-radius: 6px; color: #fff; background: #166c3e; font-size: 12px; font-weight: 650; transition: background-color .15s ease, border-color .15s ease; }
 .primaryButton:hover { background: #105a33; }
 .secondaryButton { border-color: var(--portal-line); color: var(--portal-ink); background: var(--portal-surface); }

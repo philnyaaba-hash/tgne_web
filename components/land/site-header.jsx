@@ -33,13 +33,15 @@ export default function SiteHeader({ user }) {
     { href: '/contact', label: 'Contact Us' }
   ];
 
+  if (!user) {
+    navLinks.push({ href: '/login', label: 'Client Login' });
+  }
+
   if (user) {
     // Staff reach the workspace straight after sign-in, so the public menu stays clean.
     if (!isStaffUser) {
       navLinks.push({ href: '/client', label: 'Client Portal' });
     }
-  } else {
-    navLinks.push({ href: '/login', label: 'Client Login' });
   }
 
   return (
@@ -66,12 +68,7 @@ export default function SiteHeader({ user }) {
                 <small>{workspaceLabel}</small>
               </span>
             </Link>
-          ) : (
-            <Link href="/login" className="ls-button ls-button-primary ls-header-cta">
-              Client Login
-              <Icon name="arrowRight" size={15} />
-            </Link>
-          )}
+          ) : null}
           <a href={'tel:' + LAND_SITE.phone.replace(/[^\d+]/g, '')} className="ls-button ls-button-primary ls-header-cta">
             Call Us
             <Icon name="arrowRight" size={15} />

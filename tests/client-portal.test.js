@@ -102,6 +102,20 @@ test('service validation accepts known work types only', async () => {
   assert.ok(bad.errors.priority);
 });
 
+test('active client service choices and labels are TGNE business services', async () => {
+  const { TGNE_SERVICE_TYPES, businessServiceTypeLabel } = await load();
+  assert.deepEqual(TGNE_SERVICE_TYPES.map((service) => service.value), [
+    'WEB_DEVELOPMENT',
+    'ICT_SUPPORT',
+    'GRAPHIC_DESIGN',
+    'PRINTING_SIGNAGE',
+    'HOSTING_DIGITAL',
+    'EDUCATION_CONSULTANCY'
+  ]);
+  assert.equal(businessServiceTypeLabel('WEB_DEVELOPMENT'), 'Web & software development');
+  assert.equal(businessServiceTypeLabel('SURVEY'), 'Legacy service');
+});
+
 test('document links must be https or a local upload path', async () => {
   const { validateDocument } = await load();
   assert.equal(validateDocument({ name: 'Title deed', type: 'TITLE_DEED', fileUrl: 'https://files.example.com/deed.pdf' }).ok, true);

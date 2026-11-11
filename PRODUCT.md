@@ -25,7 +25,7 @@ Avoid cluttered, generic SaaS dashboards and decorative effects that compete wit
 - Put urgent work and next actions where users can see them quickly.
 - Keep admin operations and corporate client tasks distinct.
 - Use clear, consistent labels for order stages and financial status.
-- Preserve a useful local demo experience without requiring a database connection.
+- Authenticated dashboards must use persisted service and account data; when the database is unavailable, show an actionable error instead of simulating a successful submission.
 
 ## Accessibility & Inclusion
 

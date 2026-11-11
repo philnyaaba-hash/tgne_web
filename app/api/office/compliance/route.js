@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { NextResponse } from 'next/server';
 import { recordAudit, requirePermission, requireSameOrigin } from '../../../../lib/office-auth';
 import { prisma } from '../../../../lib/prisma';
-import { COMPLIANCE_CATEGORIES, COMPLIANCE_FREQUENCIES, complianceStats } from '../../../../lib/compliance-ghana';
+import { COMPLIANCE_CATEGORIES, COMPLIANCE_FREQUENCIES, RETIRED_COMPLIANCE_CATALOG_KEYS, complianceStats } from '../../../../lib/compliance-ghana';
 import { ensureComplianceItems } from '../../../../lib/compliance';
 import { optionalString, parseDate, requiredString } from '../../../../lib/validation';
 
@@ -31,7 +31,11 @@ export async function GET() {
 
   const canManage = auth.user.permissions.includes('compliance.manage');
   const [items, members] = await Promise.all([
-    prisma.complianceObligation.findMany({ include: INCLUDE, take: 500 }),
+    prisma.complianceObligation.findMany({
+      where: { catalogKey: { notIn: RETIRED_COMPLIANCE_CATALOG_KEYS } },
+      include: INCLUDE,
+      take: 500
+    }),
     canManage
       ? prisma.user.findMany({ where: { status: 'ACTIVE' }, select: { id: true, name: true, jobTitle: true }, orderBy: { name: 'asc' }, take: 200 })
       : Promise.resolve([])

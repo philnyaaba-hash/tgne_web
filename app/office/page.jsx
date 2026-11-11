@@ -8,5 +8,5 @@ export const metadata = {
 
 export default async function OfficePage() {
   await requireAdminUser();
-  redirect('/admin/office-overview');
+  redirect('/admin');
 }

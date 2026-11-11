@@ -49,13 +49,13 @@ test('quarterly and annual obligations use the current cycle', async () => {
   assert.equal(annual.dueDate.toISOString(), '2026-06-30T12:00:00.000Z');
 });
 
-test('one-time and per-transaction obligations have no computed due date', async () => {
+test('one-time and event obligations have no computed due date', async () => {
   const { currentCycle } = await load();
   const tin = currentCycle(await byKey('gra_tin'), utc(2026, 10, 6));
   assert.deepEqual(tin, { period: 'ONCE', dueDate: null });
 
-  const stamp = currentCycle(await byKey('stamp_duty'), utc(2026, 10, 6));
-  assert.deepEqual(stamp, { period: 'ONGOING', dueDate: null });
+  const contracts = currentCycle(await byKey('labour_contracts'), utc(2026, 10, 6));
+  assert.deepEqual(contracts, { period: 'ONGOING', dueDate: null });
 });
 
 test('effectively overdue items are computed without changing filed items', async () => {
@@ -85,7 +85,7 @@ test('stats separate overdue, upcoming and filed items', async () => {
 });
 
 test('catalog entries are complete and uniquely keyed', async () => {
-  const { COMPLIANCE_CATEGORIES, COMPLIANCE_FREQUENCIES, COMPLIANCE_OBLIGATIONS } = await load();
+  const { COMPLIANCE_CATEGORIES, COMPLIANCE_FREQUENCIES, COMPLIANCE_OBLIGATIONS, GHANA_AUTHORITIES, RETIRED_COMPLIANCE_CATALOG_KEYS } = await load();
   const keys = new Set();
 
   for (const item of COMPLIANCE_OBLIGATIONS) {
@@ -108,8 +108,10 @@ test('catalog entries are complete and uniquely keyed', async () => {
     if (item.portal) assert.match(item.portal, /^https:\/\//, item.key + ' portal must be https');
   }
 
-  assert.ok(COMPLIANCE_OBLIGATIONS.length >= 15);
-  for (const key of ['paye', 'vat', 'ssnit_tier1', 'orc_annual_return', 'dpc_registration', 'reac_firm_licence', 'stamp_duty']) {
+  assert.ok(COMPLIANCE_OBLIGATIONS.length >= 12);
+  for (const key of ['paye', 'vat', 'ssnit_tier1', 'orc_annual_return', 'dpc_registration']) {
     assert.ok(keys.has(key), 'catalog is missing ' + key);
   }
+  for (const key of RETIRED_COMPLIANCE_CATALOG_KEYS) assert.ok(!keys.has(key), 'catalog must not include ' + key);
+  assert.ok(!GHANA_AUTHORITIES.some(({ name }) => ['Lands Commission', 'Real Estate Agency Council'].includes(name)));
 });

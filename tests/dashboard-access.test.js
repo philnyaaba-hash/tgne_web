@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveDashboardAccess } from '../lib/dashboard-access.js';
+import { hasPermission, permissionsForRoles, resolveDashboardAccess } from '../lib/dashboard-access.js';
 import { canViewPanel, OFFICE_PANELS } from '../lib/office-panels.js';
 
 test('resolves the highest-priority workspace role', () => {
@@ -21,6 +21,8 @@ test('super administrators keep wildcard workspace access', () => {
   const access = resolveDashboardAccess(['SUPER_ADMIN']);
   assert.deepEqual(access.permissions, ['*']);
   assert.equal(access.visual, 'admin');
+  assert.deepEqual(permissionsForRoles(['SUPER_ADMIN'], ['visitors.view']), ['visitors.view', '*']);
+  assert.equal(hasPermission({ permissions: ['*'] }, 'clients.manage'), true);
 });
 
 test('plain administrators get the same wildcard workspace access', () => {
@@ -29,6 +31,8 @@ test('plain administrators get the same wildcard workspace access', () => {
   assert.equal(access.key, 'SUPER_ADMIN');
   assert.deepEqual(access.permissions, ['*']);
   assert.equal(access.visual, 'admin');
+  assert.ok(permissionsForRoles(['ADMIN']).includes('*'));
+  assert.deepEqual(permissionsForRoles(['OFFICE_MANAGER'], ['visitors.view']), ['visitors.view']);
 });
 
 test('receptionists get visitor panels but no restricted office tools', () => {
@@ -52,14 +56,11 @@ test('any recognised office permission opens the overview', () => {
   assert.equal(canViewPanel({ permissions: ['attendance.manage'] }, 'overview'), true);
 });
 
-test('the land storefront panel follows the land.view permission', () => {
-  assert.ok(OFFICE_PANELS.land);
-  assert.equal(canViewPanel({ permissions: ['land.view'] }, 'land'), true);
-  assert.equal(canViewPanel({ permissions: ['land.manage'] }, 'land'), true);
-  assert.equal(canViewPanel({ permissions: ['growth.view'] }, 'land'), false);
-  const manager = resolveDashboardAccess(['OFFICE_MANAGER']);
-  assert.ok(manager.permissions.includes('land.view'));
-  assert.ok(manager.permissions.includes('land.manage'));
+test('the office panel registry exposes TGNE client services instead of land management', () => {
+  assert.equal(OFFICE_PANELS.land, undefined);
+  assert.ok(OFFICE_PANELS.clients);
+  assert.equal(canViewPanel({ permissions: ['client.view'] }, 'clients'), true);
+  assert.equal(canViewPanel({ permissions: ['growth.view'] }, 'clients'), false);
 });
 
 test('client-only accounts never reach an office panel', () => {

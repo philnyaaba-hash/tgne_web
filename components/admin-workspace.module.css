@@ -1,0 +1,300 @@
+.workspace {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  min-height: 100dvh;
+  background: #f4f7f5;
+  color: #1a2920;
+  font-family: var(--font-ui), Arial, sans-serif;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  height: 100dvh;
+  min-height: 460px;
+  flex-direction: column;
+  padding: 22px 14px 14px;
+  background: #14251b;
+  color: #f4f8f5;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 48px;
+  padding: 0 8px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brandMark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.brandMark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brand strong,
+.brand small,
+.account strong,
+.account small {
+  display: block;
+}
+
+.brand strong {
+  font-size: 14px;
+  letter-spacing: .08em;
+}
+
+.brand small {
+  margin-top: 3px;
+  color: #a7b9ad;
+  font-size: 11px;
+}
+
+.sectionLabel {
+  margin: 26px 10px 8px;
+  color: #91a79a;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.navigation {
+  display: grid;
+  gap: 5px;
+  overflow: auto;
+}
+
+.navGroup {
+  border-radius: 8px;
+}
+
+.groupLabel {
+  display: flex;
+  min-height: 39px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 11px;
+  border-radius: 8px;
+  color: #cbd9cf;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  list-style: none;
+  transition: background .15s ease, color .15s ease;
+}
+
+.groupLabel::-webkit-details-marker {
+  display: none;
+}
+
+.groupLabel:hover,
+.navGroup[open] > .groupLabel {
+  background: #1d3828;
+  color: #fff;
+}
+
+.groupChevron {
+  flex: 0 0 auto;
+  color: #9eb4a5;
+  transition: transform .18s ease;
+}
+
+.navGroup[open] .groupChevron {
+  transform: rotate(180deg);
+}
+
+.navSubmenu {
+  display: grid;
+  gap: 2px;
+  padding: 3px 0 6px 9px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 11px;
+  border-radius: 6px;
+  color: #b7c8bc;
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s ease, color .15s ease;
+}
+
+.navLink:hover,
+.navLinkActive {
+  background: #254532;
+  color: #fff;
+}
+
+.navLinkActive {
+  box-shadow: inset 3px 0 #7fd29c;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 14px 6px 2px;
+  border-top: 1px solid #2c4033;
+}
+
+.avatar {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #365642;
+  color: #e8f4eb;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.account strong {
+  overflow: hidden;
+  max-width: 165px;
+  color: #f5f8f6;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account small {
+  overflow: hidden;
+  max-width: 165px;
+  margin-top: 3px;
+  color: #a7b9ad;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.main {
+  min-width: 0;
+}
+
+.main :global(.office-embed) {
+  min-height: calc(100dvh - 64px);
+}
+
+.topbar {
+  position: sticky;
+  z-index: 4;
+  top: 0;
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 24px;
+  border-bottom: 1px solid #e4ebe6;
+  background: rgb(255 255 255 / 94%);
+  backdrop-filter: blur(12px);
+}
+
+.topbarEyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #718078;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+
+.topbar strong {
+  font-size: 13px;
+}
+
+.logout {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.logout :global(.office-button.secondary) {
+  min-height: 36px;
+  padding: 0 13px;
+  border-color: #d5e2d9;
+  border-radius: 999px;
+  color: #28523a;
+  font-size: 12px;
+  font-weight: 650;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
+}
+
+.logout :global(.office-button.secondary:hover) {
+  border-color: #a9c5b2;
+  background: #f8faf8;
+  color: #173c26;
+}
+
+.logout :global(.office-button.secondary:focus-visible) {
+  outline: 3px solid #53ae7b;
+  outline-offset: 2px;
+}
+
+@media (max-width: 780px) {
+  .workspace {
+    display: block;
+  }
+
+  .sidebar {
+    position: relative;
+    height: auto;
+    min-height: 0;
+    padding: 12px;
+  }
+
+  .sectionLabel,
+  .account {
+    display: none;
+  }
+
+  .navigation {
+    display: grid;
+    max-height: min(45dvh, 360px);
+    gap: 3px;
+    margin-top: 10px;
+    padding-bottom: 2px;
+    overflow-y: auto;
+  }
+
+  .navGroup {
+    min-width: 0;
+  }
+
+  .navLink {
+    min-height: 36px;
+    white-space: normal;
+  }
+
+  .topbar {
+    padding: 10px 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .topbar {
+    align-items: flex-start;
+  }
+}

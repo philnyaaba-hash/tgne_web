@@ -2,19 +2,20 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  businessServiceTypeLabel,
   SERVICE_STATUSES,
   serviceStatusLabel,
-  serviceTypeLabel
 } from '../../lib/client-portal';
 import { Empty, Field, Icon, Modal, PageHeading, Panel, Stat, StatusBadge, api, formatDate, formatDateTime, jsonBody, money } from './ui';
 
 const EMPTY = {
   clients: [],
   services: [],
+  inquiries: [],
   assignees: [],
   canManage: false,
   canFinance: false,
-  stats: { clients: 0, openServices: 0, awaitingQuote: 0 }
+  stats: { clients: 0, openServices: 0, awaitingQuote: 0, newInquiries: 0 }
 };
 
 function Status({ value, label }) {
@@ -77,12 +78,23 @@ export default function ClientsPanel({ notify, fail }) {
   }, [data.clients, query]);
 
   const openServices = data.services.filter((service) => !['COMPLETED', 'CANCELLED'].includes(service.status));
+  const inquiries = data.inquiries.filter((inquiry) => {
+    const needle = query.trim().toLowerCase();
+    return !needle || [inquiry.name, inquiry.email, inquiry.phone, inquiry.message].filter(Boolean).join(' ').toLowerCase().includes(needle);
+  });
 
   function serviceAction(service, payload, success) {
     const body = typeof payload === 'string' ? { action: payload } : payload;
     return run(
       () => api('/api/office/clients/services/' + service.id, { method: 'PATCH', ...jsonBody(body) }),
       success
+    );
+  }
+
+  function inquiryAction(inquiry, status) {
+    return run(
+      () => api('/api/office/clients/inquiries/' + inquiry.id, { method: 'PATCH', ...jsonBody({ status }) }),
+      'Inquiry status updated.'
     );
   }
 
@@ -100,12 +112,14 @@ export default function ClientsPanel({ notify, fail }) {
         <Stat label="Open service requests" value={loading ? '—' : data.stats.openServices} hint="Active client work" icon="settings" tone={data.stats.openServices ? 'attention' : ''} />
         <Stat label="Awaiting quote" value={loading ? '—' : data.stats.awaitingQuote} hint="Requests to review" icon="file" tone={data.stats.awaitingQuote ? 'attention' : ''} />
         <Stat label="Available staff" value={loading ? '—' : data.assignees.length} hint="Ready to be assigned" icon="users" />
+        <Stat label="New inquiries" value={loading ? '—' : data.stats.newInquiries} hint="Public and client messages" icon="file" tone={data.stats.newInquiries ? 'attention' : ''} />
       </div>
 
       <div className="growth-tabs">
         <div className="office-segmented" role="tablist" aria-label="Client desk sections">
           <button type="button" className={tab === 'clients' ? 'active' : ''} onClick={() => setTab('clients')}>Clients</button>
           <button type="button" className={tab === 'services' ? 'active' : ''} onClick={() => setTab('services')}>Services{data.stats.awaitingQuote ? ' · ' + data.stats.awaitingQuote : ''}</button>
+          <button type="button" className={tab === 'inquiries' ? 'active' : ''} onClick={() => setTab('inquiries')}>Inquiries{data.stats.newInquiries ? ' · ' + data.stats.newInquiries : ''}</button>
         </div>
       </div>
 
@@ -147,7 +161,7 @@ export default function ClientsPanel({ notify, fail }) {
                   <tr key={service.id}>
                     <td><strong>{service.reference}</strong><small>{formatDate(service.createdAt)}</small></td>
                     <td><strong>{service.client?.user?.name}</strong><small>{service.client?.clientCode} · {service.client?.user?.email}</small></td>
-                    <td><strong>{service.title}</strong><small>{serviceTypeLabel(service.type)} · {service.location || 'No location provided'}</small></td>
+                    <td><strong>{service.title}</strong><small>{businessServiceTypeLabel(service.type)} · {service.location || 'No location provided'}</small></td>
                     <td><strong>{service.quoteAmount ? money(service.quoteAmount) : '—'}</strong><small>{service.invoiceNumber || 'No invoice'}</small></td>
                     <td><Status value={service.status} label={serviceStatusLabel(service.status)} /><small>{service.updates?.[0]?.message?.slice(0, 70) || ''}</small></td>
                     <td><small>{service.scheduledFor ? formatDateTime(service.scheduledFor) : 'Not scheduled'}</small><small>{service.assignedTo?.name || 'Unassigned'}</small></td>
@@ -170,6 +184,54 @@ export default function ClientsPanel({ notify, fail }) {
             </table>
           </div>
         </Panel>
+      ) : null}
+
+      {tab === 'inquiries' ? (
+        <>
+          <form className="office-filter-bar" onSubmit={(event) => event.preventDefault()}>
+            <label className="grow"><Icon name="search" size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search name, email, phone or message" aria-label="Search service inquiries" /></label>
+          </form>
+          <Panel title="Service inquiries" subtitle={inquiries.length + ' shown · ' + data.inquiries.length + ' total'}>
+            <div className="office-table-wrap">
+              <table className="office-table">
+                <thead><tr><th>Contact</th><th>Service interest</th><th>Message</th><th>Received</th><th>Status</th></tr></thead>
+                <tbody>
+                  {inquiries.map((inquiry) => {
+                    const service = /^Service of interest:\s*(.+)$/m.exec(inquiry.message || '')?.[1] || 'General inquiry';
+                    const message = (inquiry.message || '').replace(/^Service of interest:\s*.+\r?\n\r?\n/m, '');
+                    return (
+                      <tr key={inquiry.id}>
+                        <td><strong>{inquiry.name}</strong><small><a href={'mailto:' + inquiry.email}>{inquiry.email}</a>{inquiry.phone ? ' · ' + inquiry.phone : ''}</small></td>
+                        <td>{service}</td>
+                        <td><details><summary>{message.slice(0, 90) || 'No message'}{message.length > 90 ? '…' : ''}</summary><p>{message}</p></details></td>
+                        <td><small>{formatDateTime(inquiry.createdAt)}</small></td>
+                        <td>
+                          {data.canManage ? (
+                            <label className="sr-only" htmlFor={'inquiry-status-' + inquiry.id}>Update status for inquiry from {inquiry.name}</label>
+                          ) : null}
+                          {data.canManage ? (
+                            <select
+                              id={'inquiry-status-' + inquiry.id}
+                              value={inquiry.status}
+                              disabled={busy}
+                              onChange={(event) => inquiryAction(inquiry, event.target.value)}
+                            >
+                              <option value="NEW">New</option>
+                              <option value="CONTACTED">Contacted</option>
+                              <option value="QUALIFIED">Qualified</option>
+                              <option value="CLOSED">Closed</option>
+                            </select>
+                          ) : <Status value={inquiry.status} label={inquiry.status} />}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {!inquiries.length ? <Empty colSpan={5}>{loading ? 'Loading inquiries…' : 'No service inquiries yet.'}</Empty> : null}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+        </>
       ) : null}
 
       {modal?.type === 'service-quote' ? (
@@ -217,7 +279,7 @@ function QuoteModal({ service, busy, onClose, onSubmit }) {
   const [scheduledFor, setScheduledFor] = useState(toInput(service.scheduledFor));
   const [note, setNote] = useState('');
   return (
-    <Modal title={'Quote ' + service.reference} eyebrow={serviceTypeLabel(service.type)} description={'For ' + service.title} onClose={onClose} wide>
+    <Modal title={'Quote ' + service.reference} eyebrow={businessServiceTypeLabel(service.type)} description={'For ' + service.title} onClose={onClose} wide>
       <form className="office-form-grid" onSubmit={(event) => { event.preventDefault(); onSubmit({ amount, scheduledFor: scheduledFor || null, note }); }}>
         <Field label="Quote amount (GHS)"><input type="number" min="1" step="1" value={amount} onChange={(event) => setAmount(event.target.value)} required /></Field>
         <Field label="Proposed date" hint="Optional at quote stage."><input type="datetime-local" value={scheduledFor} onChange={(event) => setScheduledFor(event.target.value)} /></Field>
@@ -236,7 +298,7 @@ function ScheduleModal({ service, assignees, busy, onClose, onSubmit }) {
   const [assignedToId, setAssignedToId] = useState(service.assignedToId || '');
   const [note, setNote] = useState('');
   return (
-    <Modal title={'Schedule ' + service.reference} eyebrow={serviceTypeLabel(service.type)} description={service.title} onClose={onClose} wide>
+    <Modal title={'Schedule ' + service.reference} eyebrow={businessServiceTypeLabel(service.type)} description={service.title} onClose={onClose} wide>
       <form className="office-form-grid" onSubmit={(event) => { event.preventDefault(); onSubmit({ scheduledFor, assignedToId: assignedToId || null, note }); }}>
         <Field label="Date and time"><input type="datetime-local" value={scheduledFor} onChange={(event) => setScheduledFor(event.target.value)} required /></Field>
         <Field label="Assign to"><select value={assignedToId} onChange={(event) => setAssignedToId(event.target.value)}><option value="">Unassigned</option>{assignees.map((assignee) => <option key={assignee.id} value={assignee.id}>{assignee.name}{assignee.jobTitle ? ' · ' + assignee.jobTitle : ''}</option>)}</select></Field>
@@ -254,7 +316,7 @@ function UpdateModal({ service, busy, onClose, onSubmit }) {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState(service.status);
   return (
-    <Modal title={'Update ' + service.reference} eyebrow={serviceTypeLabel(service.type)} description={service.title} onClose={onClose} wide>
+    <Modal title={'Update ' + service.reference} eyebrow={businessServiceTypeLabel(service.type)} description={service.title} onClose={onClose} wide>
       <form className="office-form-grid" onSubmit={(event) => { event.preventDefault(); onSubmit({ message, status }); }}>
         <Field label="Status"><select value={status} onChange={(event) => setStatus(event.target.value)}>{SERVICE_STATUSES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></Field>
         <Field label="Update for the client" full><textarea rows={4} value={message} onChange={(event) => setMessage(event.target.value)} maxLength={2000} required /></Field>

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { recordAudit, requirePermission, requireSameOrigin } from '../../../../../../lib/office-auth';
 import { prisma } from '../../../../../../lib/prisma';
-import { isServiceStatus, serviceInvoiceNumber, serviceTypeLabel } from '../../../../../../lib/client-portal';
+import { businessServiceTypeLabel, isServiceStatus, serviceInvoiceNumber } from '../../../../../../lib/client-portal';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -60,7 +60,7 @@ export async function PATCH(request, { params }) {
 
         if (canFinance) {
           invoiceNumber = serviceInvoiceNumber(existing.reference);
-          const description = serviceTypeLabel(existing.type) + ' — ' + existing.title;
+          const description = businessServiceTypeLabel(existing.type) + ' — ' + existing.title;
           const invoice = await tx.invoice.findUnique({ where: { number: invoiceNumber }, select: { id: true, status: true } });
           if (invoice) {
             await tx.invoice.update({
@@ -163,7 +163,7 @@ export async function PATCH(request, { params }) {
                 payerName: existing.client.user.name,
                 amount: invoice.amount,
                 method: 'CASH',
-                note: 'Settled on completion of ' + serviceTypeLabel(existing.type) + '.',
+                note: 'Settled on completion of ' + businessServiceTypeLabel(existing.type) + '.',
                 recordedById: auth.user.id
               }
             });
@@ -171,7 +171,7 @@ export async function PATCH(request, { params }) {
           }
         }
         await tx.serviceUpdate.create({
-          data: { requestId: id, authorId: auth.user.id, authorRole: 'OFFICE', message: note || 'Work completed. Thank you for choosing LandLedger.' }
+          data: { requestId: id, authorId: auth.user.id, authorRole: 'OFFICE', message: note || 'Work completed. Thank you for choosing TGNE Solutions.' }
         });
         await recordAudit(tx, auth.user.id, 'client.service_completed', 'ServiceRequest', id, { reference: existing.reference });
         return updated;

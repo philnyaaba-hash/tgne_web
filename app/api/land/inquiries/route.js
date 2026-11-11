@@ -26,6 +26,9 @@ export async function POST(request) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) {
     return NextResponse.json({ error: 'Request must be a JSON object.' }, { status: 400 });
   }
+  if (typeof input.website === 'string' && input.website.trim()) {
+    return NextResponse.json({ ok: true }, { status: 201 });
+  }
 
   const validation = validateInquiry(input);
   if (!validation.ok) {
@@ -44,7 +47,7 @@ export async function POST(request) {
     }
     await prisma.landInquiry.create({ data: { ...validation.value, listingId } });
   } catch (error) {
-    console.error('Land inquiry could not be saved.', error?.message);
+    console.error('Service inquiry could not be saved.', error?.message);
     return NextResponse.json({ error: 'We could not save your message. Please call or try again.' }, { status: 503 });
   }
 

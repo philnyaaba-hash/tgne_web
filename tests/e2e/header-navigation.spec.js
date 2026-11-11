@@ -10,6 +10,7 @@ test('mobile header shows the menu toggle and opens the drawer', async ({ page }
   await toggle.click();
   await expect(page.locator('#land-mobile-nav')).toBeVisible();
   await expect(page.locator('#land-mobile-nav a[href="/login"]')).toBeVisible();
+  await expect(page.locator('#land-mobile-nav a[href="/login"]')).toHaveCount(1);
   await page.locator('.ls-mobile-submenu-summary').first().click();
   await expect(page.locator('#land-mobile-nav a[href="/about"]')).toBeVisible();
 });
@@ -17,6 +18,7 @@ test('mobile header shows the menu toggle and opens the drawer', async ({ page }
 test('desktop header shows the client login link when signed out', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/', { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('.ls-header-actions a[href="/login"]').first()).toBeVisible();
+  await expect(page.locator('.ls-header-actions a[href="/login"]')).toHaveCount(0);
+  await expect(page.locator('.ls-nav a[href="/login"]')).toHaveCount(1);
   await expect(page.locator('.ls-user-chip')).toHaveCount(0);
 });

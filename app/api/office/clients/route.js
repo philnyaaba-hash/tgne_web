@@ -10,7 +10,7 @@ export async function GET() {
   if (auth.response) return auth.response;
 
   try {
-    const [clients, services, assignees] = await Promise.all([
+    const [clients, services, assignees, inquiries] = await Promise.all([
       prisma.clientProfile.findMany({
         include: {
           user: { select: { id: true, name: true, email: true, phone: true, status: true } },
@@ -36,6 +36,12 @@ export async function GET() {
         select: { id: true, name: true, jobTitle: true },
         orderBy: { name: 'asc' },
         take: 40
+      }),
+      prisma.landInquiry.findMany({
+        where: { listingId: null, type: 'GENERAL' },
+        select: { id: true, name: true, email: true, phone: true, message: true, status: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+        take: 200
       })
     ]);
 
@@ -43,12 +49,14 @@ export async function GET() {
       clients,
       services,
       assignees,
+      inquiries,
       canManage: auth.user.permissions.includes('client.manage'),
       canFinance: auth.user.permissions.includes('finance.manage'),
       stats: {
         clients: clients.length,
         openServices: services.filter((service) => !['COMPLETED', 'CANCELLED'].includes(service.status)).length,
-        awaitingQuote: services.filter((service) => service.status === 'SUBMITTED').length
+        awaitingQuote: services.filter((service) => service.status === 'SUBMITTED').length,
+        newInquiries: inquiries.filter((inquiry) => inquiry.status === 'NEW').length
       }
     }, { headers: { 'cache-control': 'no-store' } });
   } catch (error) {

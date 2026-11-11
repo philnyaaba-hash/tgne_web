@@ -1,6 +1,6 @@
-import OfficePanelView from '../../../components/office/office-panel-view';
-import { requireAdminUser } from '../../../lib/route-access';
 import { OFFICE_PANELS } from '../../../lib/office-panels';
+import { redirect } from 'next/navigation';
+import { requireAdminUser } from '../../../lib/route-access';
 
 export const metadata = {
   title: 'Admin workspace | TGNE Solutions',
@@ -8,7 +8,8 @@ export const metadata = {
 };
 
 export default async function AdminEmbedPage({ searchParams }) {
-  const [user, params] = await Promise.all([requireAdminUser(), searchParams]);
+  await requireAdminUser();
+  const params = await searchParams;
   const panel = typeof params?.panel === 'string' && OFFICE_PANELS[params.panel] ? params.panel : 'overview';
-  return <OfficePanelView initialUser={user} panel={panel} />;
+  redirect(panel === 'overview' ? '/admin' : '/admin/' + panel);
 }

@@ -43,7 +43,7 @@ export default function OfficePanelView({ initialUser, panel }) {
   const allowed = canViewPanel(initialUser, panel);
 
   function navigate(key) {
-    if (PANELS[key]) window.location.assign('/admin/embed?panel=' + key);
+    if (PANELS[key]) window.location.assign(key === 'overview' ? '/admin' : '/admin/' + key);
   }
 
   return (

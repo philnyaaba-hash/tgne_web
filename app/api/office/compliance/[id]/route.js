@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { recordAudit, requirePermission, requireSameOrigin } from '../../../../../lib/office-auth';
 import { prisma } from '../../../../../lib/prisma';
-import { COMPLIANCE_STATUSES } from '../../../../../lib/compliance-ghana';
+import { COMPLIANCE_STATUSES, RETIRED_COMPLIANCE_CATALOG_KEYS } from '../../../../../lib/compliance-ghana';
 import { optionalString, parseDate } from '../../../../../lib/validation';
 
 export const runtime = 'nodejs';
@@ -41,7 +41,9 @@ export async function PATCH(request, { params }) {
 
   const { id } = await params;
   const existing = await prisma.complianceObligation.findUnique({ where: { id } });
-  if (!existing) return NextResponse.json({ error: 'Compliance obligation not found.' }, { status: 404 });
+  if (!existing || RETIRED_COMPLIANCE_CATALOG_KEYS.includes(existing.catalogKey)) {
+    return NextResponse.json({ error: 'Compliance obligation not found.' }, { status: 404 });
+  }
 
   const data = {};
 
@@ -111,7 +113,9 @@ export async function DELETE(request, { params }) {
 
   const { id } = await params;
   const existing = await prisma.complianceObligation.findUnique({ where: { id } });
-  if (!existing) return NextResponse.json({ error: 'Compliance obligation not found.' }, { status: 404 });
+  if (!existing || RETIRED_COMPLIANCE_CATALOG_KEYS.includes(existing.catalogKey)) {
+    return NextResponse.json({ error: 'Compliance obligation not found.' }, { status: 404 });
+  }
   if (!existing.catalogKey.startsWith('custom:')) {
     return NextResponse.json({ error: 'Statutory obligations cannot be deleted. Mark them as not applicable instead.' }, { status: 400 });
   }
